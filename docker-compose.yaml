@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+  builder:
+    image: centos:511-golang
+    #environment:
+    #  MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ".:/root/code"
+    #ports:
+    #  - 3306:3306
+    tty: true
+    command: bash
+    #restart: always

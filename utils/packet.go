@@ -74,7 +74,6 @@ func (cap *Capture) InPortRange(port uint16) bool {
 
 func (cap *Capture) FormatInText() string {
 	text := []string{}
-
 	for local, v := range cap.In {
 		for remote := range v.content {
 			tmp := fmt.Sprintf("%15s -> %-21s", remote, colorPort(local.String()))
@@ -94,35 +93,63 @@ func (cap *Capture) FormatOutText() string {
 
 func (cap *Capture) DisplayInfo(printer *pterm.AreaPrinter) {
 
-	// fmt.Printf("%+v\n", InMap)
+	sumText := cap.Sum()
 	inText := cap.FormatInText()
 	outText := cap.FormatOutText()
-
-	// fmt.Printf("%+v\n", inText)
-	// fmt.Printf("%+v\n", outText)
-	// fmt.Println("------------------------------------")
-
-	// clear()
-	// pterm.Debug.Println("Hello, World!")
-	printer.Update(pterm.Sprintf(inText + "\n" + outText))
+	printer.Update(pterm.Sprintf(sumText + "\n" + inText + "\n" + outText + "\n"))
 }
 
 func (cap *Capture) SaveToFile() {
-	fmt.Println("Saving to file")
+	fmt.Println("Saving to file: data.txt")
+	filePath := "data.txt"
+
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		fmt.Println("Unable to open file:", err)
+		return
+	}
+	defer file.Close()
+
+	// Write IN data
+	text := []string{}
+	for local, v := range cap.In {
+		for remote := range v.content {
+			tmp := fmt.Sprintf("%s -> %s", remote, local)
+			text = append(text, tmp)
+		}
+	}
+	inContent := strings.Join(text, "\n")
+
+	//Write OUT data
+	text = []string{}
+	for remote := range cap.Out.content {
+		text = append(text, fmt.Sprintf("%s -> %s", cap.LocalIP, remote))
+	}
+	outContent := strings.Join(text, "\n")
+
+	_, err = file.WriteString(inContent + "\n" + outContent)
+	if err != nil {
+		fmt.Println("Unable to write:", err)
+		return
+	}
+
+}
+
+func (cap *Capture) Sum() string {
+	count := 0
+	for _, v := range cap.In {
+		count += v.Size()
+	}
+
+	in := fmt.Sprintf("%s %d", pterm.BgGreen.Sprintf("IN:"), count)
+	out := fmt.Sprintf("%s %d\n", pterm.BgLightYellow.Sprintf("OUT:"), cap.Out.Size())
+	return in + ", " + out
 }
 
 func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter) {
-	var eth layers.Ethernet
-	var ip4 layers.IPv4
-	var ip6 layers.IPv6
-	var tcp layers.TCP
-	var udp layers.UDP
+
 	var handle *pcap.Handle
 	var err error
-	// var packInfo PacketInfo
-
-	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &eth, &ip4, &ip6, &tcp, &udp)
-	decoded := []gopacket.LayerType{}
 
 	if handle, err = pcap.OpenLive(cap.NIC, 1600, true, pcap.BlockForever); err != nil {
 		panic(err)
@@ -134,31 +161,52 @@ func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter)
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 
 	for packet := range packetSource.Packets() {
+		// var eth layers.Ethernet
+		var ip4 *layers.IPv4
+		// var ip6 layers.IPv6
+		var tcp *layers.TCP
+		var udp *layers.UDP
+
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			if err := parser.DecodeLayers(packet.Data(), &decoded); err != nil {
-				// fmt.Fprintf(os.Stderr, "Could not decode layers: %v\n", err)
-				// fmt.Println(packet)
-				continue
-			}
-			for _, layerType := range decoded {
-				// fmt.Println("----", layerType)
-				switch layerType {
-				case layers.LayerTypeUDP:
-					fmt.Println("found UDP layer")
-				// case layers.LayerTypeIPv6:
-				// 	fmt.Println("    IP6 ", ip6.SrcIP, ip6.DstIP)
-				// case layers.LayerTypeIPv4:
-				// 	fmt.Println("    IP4 ", ip4.SrcIP, ip4.DstIP)
-				case layers.LayerTypeTCP:
-					// fmt.Println("found TCP layer")
+			ipLayer := packet.Layer(layers.LayerTypeIPv4)
+			if ipLayer != nil {
+				ip4, _ = ipLayer.(*layers.IPv4)
+				tcpLayer := packet.Layer(layers.LayerTypeTCP)
+				if tcpLayer != nil {
+					tcp, _ = tcpLayer.(*layers.TCP)
+				}
 
-					// Process IN packet
-					if ip4.DstIP.Equal(cap.LocalIP) && !cap.InPortRange(uint16(tcp.DstPort)) {
+				udpLayer := packet.Layer(layers.LayerTypeUDP)
+				if udpLayer != nil {
+					udp, _ = udpLayer.(*layers.UDP)
+				}
+
+				if tcp == nil && udp == nil {
+					continue
+				}
+
+				// Process IN packet
+				if ip4.DstIP.Equal(cap.LocalIP) {
+					var port uint16
+					if tcp != nil {
+						port = uint16(tcp.DstPort)
+					}
+					if udp != nil {
+						port = uint16(udp.DstPort)
+					}
+
+					if !cap.InPortRange(port) {
+
+						var addrPort netip.AddrPort
 						addr := netip.AddrFrom4([4]byte(ip4.DstIP))
-						addrPort := netip.AddrPortFrom(addr, uint16(tcp.DstPort))
+						if tcp != nil {
+							addrPort = netip.AddrPortFrom(addr, uint16(tcp.DstPort))
+						} else {
+							addrPort = netip.AddrPortFrom(addr, uint16(udp.DstPort))
+						}
 
 						if val, ok := cap.In[addrPort]; ok {
 							ipStr := ip4.SrcIP.String()
@@ -171,18 +219,33 @@ func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter)
 							cap.In[addrPort] = *set
 						}
 					}
-					// Process OUT packet
-					if ip4.SrcIP.Equal(cap.LocalIP) && !ip4.DstIP.Equal(cap.LocalIP) && cap.InPortRange(uint16(tcp.SrcPort)) {
-						remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), tcp.DstPort)
-						if !cap.Out.Has(remote) {
-							cap.Out.Add(remote)
+				}
+
+				// Process OUT packet
+				if ip4.SrcIP.Equal(cap.LocalIP) && !ip4.DstIP.Equal(cap.LocalIP) {
+					var port uint16
+					if tcp != nil {
+						port = uint16(tcp.SrcPort)
+						if cap.InPortRange(port) {
+							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), tcp.DstPort)
+							if !cap.Out.Has(remote) {
+								cap.Out.Add(remote)
+							}
 						}
 					}
-
-					cap.DisplayInfo(printer)
+					if udp != nil {
+						port = uint16(udp.SrcPort)
+						if cap.InPortRange(port) {
+							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), udp.DstPort)
+							if !cap.Out.Has(remote) {
+								cap.Out.Add(remote)
+							}
+						}
+					}
 				}
-			}
+			} //ipLayer != nil
 
+			cap.DisplayInfo(printer)
 		}
 	}
 }

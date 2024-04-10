@@ -26,6 +26,8 @@ func init() {
 	if err := env.Parse(&envParam); err != nil {
 		panic(err)
 	}
+
+	fmt.Println(envParam)
 }
 
 func main() {
@@ -70,7 +72,11 @@ func main() {
 	}()
 
 	wg.Wait()
-	fmt.Println("Exiting cleanly...")
+	fmt.Println("Exited...")
+	area.Stop()
+
+	capture.SaveToFile()
+
 	os.Exit(0)
 }
 
