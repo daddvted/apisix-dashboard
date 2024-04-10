@@ -114,7 +114,7 @@ func (cap *Capture) SaveToFile() {
 	text := []string{}
 	for local, v := range cap.In {
 		for remote := range v.content {
-			tmp := fmt.Sprintf("%s -> %s", remote, local)
+			tmp := fmt.Sprintf("%s<-%s", local, remote)
 			text = append(text, tmp)
 		}
 	}
@@ -123,7 +123,7 @@ func (cap *Capture) SaveToFile() {
 	//Write OUT data
 	text = []string{}
 	for remote := range cap.Out.content {
-		text = append(text, fmt.Sprintf("%s -> %s", cap.LocalIP, remote))
+		text = append(text, fmt.Sprintf("%s->%s", cap.LocalIP, remote))
 	}
 	outContent := strings.Join(text, "\n")
 
