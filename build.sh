@@ -9,8 +9,7 @@
 
 #CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build --ldflags "-L $PWD/libpcap-$PCAPV -linkmode external -extldflags \"-static\"" -a -o main .
 
-export LD_LIBRARY_PATH="-L$PWD/libpcap-1.5.3"
-export CGO_CPPFLAGS="-I$PWD/libpcap-1.5.3"
-export CGO_LDFLAGS+="-Wno-error,-Wl,-static -L$PWD/libpcap-1.5.3 -lpcap -Wl,-Bdynamic"
-
-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build .
+#LD_LIBRARY_PATH="-L$PWD/libpcap-1.5.3" \
+#CGO_CPPFLAGS="-I$PWD/libpcap-1.5.3" \
+#CGO_LDFLAGS="-static -L$PWD/libpcap-1.5.3 -lpcap -Wl,-Bdynamic" \
+GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o netswatch2

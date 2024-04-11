@@ -15,9 +15,10 @@ import (
 )
 
 type EnvParam struct {
-	Filter string `env:"NW2_FILTER" envDefault:"tcp and not port 22"`
-	HostIP string `env:"NW2_HOST_IP" envDefault:"127.0.0.1"`
-	NIC    string `env:"NW2_NIC" envDefault:"eth0"`
+	Filter string   `env:"NW2_FILTER" envDefault:"tcp and not port 22"`
+	HostIP string   `env:"NW2_HOST_IP" envDefault:"127.0.0.1"`
+	NIC    string   `env:"NW2_NIC" envDefault:"eth0"`
+	ExPort []string `env:"NW2_EX_PORT" envSeparator:","`
 }
 
 var envParam EnvParam
@@ -26,21 +27,30 @@ func init() {
 	if err := env.Parse(&envParam); err != nil {
 		panic(err)
 	}
-
-	fmt.Println(envParam)
 }
 
 func main() {
 	pterm.EnableDebugMessages()
+	fmt.Println(pterm.Yellow(utils.Version))
 	pterm.Info.Println("Ctrl+C to stop")
 
 	area, _ := pterm.DefaultArea.Start()
 
 	localIP := net.ParseIP(envParam.HostIP)
 	sport, eport := utils.GetLocalPortRange()
+
+	// Process port exclusion
+	exPort := utils.NewSet()
+	for _, port := range envParam.ExPort {
+		if !exPort.Has(port) {
+			exPort.Add(port)
+		}
+	}
+
 	capture := utils.Capture{
 		StartPort: sport,
 		EndPort:   eport,
+		Ex:        *exPort,
 		LocalIP:   localIP,
 		NIC:       envParam.NIC,
 		Filter:    envParam.Filter,
@@ -65,9 +75,16 @@ func main() {
 	}()
 
 	wg.Add(1)
+	// goroutine to parse packet
 	go func() {
-		// packet.ParsePacket(ctx, area, &capInfo)
-		capture.ParsePacket(ctx, area)
+		capture.ParsePacket(ctx)
+		wg.Done()
+	}()
+
+	// Goroutine to display packet info
+	wg.Add(1)
+	go func() {
+		capture.DisplayInfo(ctx, area)
 		wg.Done()
 	}()
 

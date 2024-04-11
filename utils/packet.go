@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -18,6 +19,7 @@ import (
 type Capture struct {
 	StartPort uint16
 	EndPort   uint16
+	Ex        Set
 	LocalIP   net.IP
 	NIC       string
 	Filter    string
@@ -60,12 +62,16 @@ func GetLocalPortRange() (uint16, uint16) {
 		}
 		portArr = append(portArr, uint16(portInt))
 	}
-	pterm.Debug.Printf("Local port range: %d-%d", portArr[0], portArr[1])
+	pterm.Debug.Printf("Local port range: %d-%d\n", portArr[0], portArr[1])
 
 	return portArr[0], portArr[1]
 }
 
 func (cap *Capture) InPortRange(port uint16) bool {
+	portStr := strconv.FormatUint(uint64(port), 10)
+	if cap.Ex.Has(portStr) {
+		return false
+	}
 	if port < cap.StartPort || port > cap.EndPort {
 		return false
 	}
@@ -91,12 +97,21 @@ func (cap *Capture) FormatOutText() string {
 	return strings.Join(text, "\n")
 }
 
-func (cap *Capture) DisplayInfo(printer *pterm.AreaPrinter) {
+func (cap *Capture) DisplayInfo(ctx context.Context, printer *pterm.AreaPrinter) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			sumText := cap.Sum()
+			inText := cap.FormatInText()
+			outText := cap.FormatOutText()
+			printer.Update(pterm.Sprintf(sumText + "\n" + inText + "\n" + outText + "\n"))
 
-	sumText := cap.Sum()
-	inText := cap.FormatInText()
-	outText := cap.FormatOutText()
-	printer.Update(pterm.Sprintf(sumText + "\n" + inText + "\n" + outText + "\n"))
+			time.Sleep(time.Second * 1)
+
+		}
+	}
 }
 
 func (cap *Capture) SaveToFile() {
@@ -142,17 +157,19 @@ func (cap *Capture) Sum() string {
 	}
 
 	in := fmt.Sprintf("%s %d", pterm.BgGreen.Sprintf("IN:"), count)
-	out := fmt.Sprintf("%s %d\n", pterm.BgLightYellow.Sprintf("OUT:"), cap.Out.Size())
+	out := fmt.Sprintf("%s %d\n", pterm.BgGreen.Sprintf("OUT:"), cap.Out.Size())
 	return in + ", " + out
 }
 
-func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter) {
+func (cap *Capture) ParsePacket(ctx context.Context) {
 
 	var handle *pcap.Handle
 	var err error
 
 	if handle, err = pcap.OpenLive(cap.NIC, 1600, true, pcap.BlockForever); err != nil {
-		panic(err)
+		pterm.Red(err)
+		fmt.Println(pterm.Red(err))
+		os.Exit(2)
 	}
 
 	if err := handle.SetBPFFilter(cap.Filter); err != nil { // optional
@@ -172,16 +189,21 @@ func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter)
 			return
 		default:
 			ipLayer := packet.Layer(layers.LayerTypeIPv4)
+
+			// Only process non-nil IP packet
 			if ipLayer != nil {
 				ip4, _ = ipLayer.(*layers.IPv4)
+				// fmt.Println("ip4: ", ip4.Length)
 				tcpLayer := packet.Layer(layers.LayerTypeTCP)
 				if tcpLayer != nil {
 					tcp, _ = tcpLayer.(*layers.TCP)
+					// fmt.Println("tcp: ", len(tcp.Payload))
 				}
 
 				udpLayer := packet.Layer(layers.LayerTypeUDP)
 				if udpLayer != nil {
 					udp, _ = udpLayer.(*layers.UDP)
+					// fmt.Println("udp: ", len(udp.Payload))
 				}
 
 				if tcp == nil && udp == nil {
@@ -191,11 +213,12 @@ func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter)
 				// Process IN packet
 				if ip4.DstIP.Equal(cap.LocalIP) {
 					var port uint16
-					if tcp != nil {
+					if tcp != nil && len(tcp.Payload) > 0 {
 						port = uint16(tcp.DstPort)
-					}
-					if udp != nil {
+					} else if udp != nil && len(udp.Payload) > 0 {
 						port = uint16(udp.DstPort)
+					} else {
+						continue
 					}
 
 					if !cap.InPortRange(port) {
@@ -224,7 +247,7 @@ func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter)
 				// Process OUT packet
 				if ip4.SrcIP.Equal(cap.LocalIP) && !ip4.DstIP.Equal(cap.LocalIP) {
 					var port uint16
-					if tcp != nil {
+					if tcp != nil && len(tcp.Payload) > 0 {
 						port = uint16(tcp.SrcPort)
 						if cap.InPortRange(port) {
 							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), tcp.DstPort)
@@ -232,8 +255,7 @@ func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter)
 								cap.Out.Add(remote)
 							}
 						}
-					}
-					if udp != nil {
+					} else if udp != nil && len(udp.Payload) > 0 {
 						port = uint16(udp.SrcPort)
 						if cap.InPortRange(port) {
 							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), udp.DstPort)
@@ -245,7 +267,7 @@ func (cap *Capture) ParsePacket(ctx context.Context, printer *pterm.AreaPrinter)
 				}
 			} //ipLayer != nil
 
-			cap.DisplayInfo(printer)
+			// cap.DisplayInfo(printer)
 		}
 	}
 }
