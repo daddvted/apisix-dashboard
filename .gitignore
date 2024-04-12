@@ -1,4 +1,5 @@
 *.tar.gz
 *.txt
 libpcap-1.5.3
-netswatch2
+captor
+analyzer

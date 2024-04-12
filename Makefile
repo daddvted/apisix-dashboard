@@ -16,6 +16,9 @@ TAG?=$(shell date +%Y%m%d-%H)
 #	rm -f ninja
 #	  -ldflags '-s -w -X "github.com/daddvted/fruitninja/fruitninja.Version=beta-$(TAG)" -extldflags "-static"'
 
+LDFLAGS=-ldflags '-X github.com/daddvted/netswatch2/utils.Version=beta-$(TAG)'
+#LDFLAGS=-ldflags "-X main.Version=1.0.0 -X main.BuildTime=$(shell date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
 
 debug:
 	@echo $(TAG)
@@ -27,6 +30,11 @@ build: $(shell find . -type f  -name '*.go')
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o netswatch2 \
 	-ldflags '-X github.com/daddvted/netswatch2/utils.Version=beta-$(TAG) -extldflags "-static"'
 
-dynamic: $(shell find . -type f  -name '*.go')
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o netswatch2 \
-	-ldflags '-X github.com/daddvted/netswatch2/utils.Version=beta-$(TAG)'
+#captor: $(shell find ./cmd/captor -type f  -name '*.go')
+captor: 
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o captor cmd/captor/main.go \
+
+analyzer: 
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o analyzer cmd/analyzer/main.go \
+
+all: captor analyzer
