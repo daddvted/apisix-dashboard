@@ -38,3 +38,6 @@ analyzer:
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o analyzer cmd/analyzer/main.go \
 
 all: captor analyzer
+
+clean:
+	rm -f captor analyzer
