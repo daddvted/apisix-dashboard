@@ -1,22 +1,16 @@
-package analyzer
+package web
 
 import (
-	"fmt"
-	"html/template"
-	"io"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 )
 
-type Template struct {
-	templates *template.Template
+func NodeHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, fakeNode())
 }
 
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
-
-func getDataHandler(c echo.Context) error {
-	return c.String(http.StatusOK, fmt.Sprintln("hello data"))
+func EdgeHandler(c *gin.Context) {
+	data := []interface{}{}
+	c.JSON(http.StatusOK, data)
 }
