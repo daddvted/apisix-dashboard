@@ -40,12 +40,11 @@ func generateGroupCoordinates(groups, nodesPerGroup int, distance float64) [][][
 		for nodeID := 0; nodeID < nodesPerGroup; nodeID++ {
 			var x, y float64
 			if nodeID == 0 {
-				// First random coordinate
+				// First random coordinate(base coordinate)
 				x = float64(groupID*100) + rand.Float64()*1000
 				y = float64(groupID*100) + rand.Float64()*1000
-				fmt.Println("first coordinate: ", x, y)
+				fmt.Println("base coordinate: ", x, y)
 			} else {
-				// 后续节点的坐标在上一个节点的基础上加上一定的距离
 				prevX := groupCoordinates[nodeID-1][0]
 				prevY := groupCoordinates[nodeID-1][1]
 				x = prevX + (rand.Float64()-0.5)*200

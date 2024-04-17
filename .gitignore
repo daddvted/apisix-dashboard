@@ -1,3 +1,4 @@
 *.tar.gz
 *.txt
 libpcap-1.5.3
+cmd/analyzer/tmp
