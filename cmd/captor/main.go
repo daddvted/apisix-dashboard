@@ -92,7 +92,7 @@ func main() {
 	fmt.Println("Exited...")
 	area.Stop()
 
-	capture.SaveToFile()
+	capture.SaveToFile(envParam.HostIP)
 
 	os.Exit(0)
 }
