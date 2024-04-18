@@ -62,7 +62,7 @@ func GetLocalPortRange() (uint16, uint16) {
 		}
 		portArr = append(portArr, uint16(portInt))
 	}
-	pterm.Debug.Printf("Local port range: %d-%d\n", portArr[0], portArr[1])
+	fmt.Println(pterm.Gray(fmt.Sprintf("Local port range: %d-%d\n", portArr[0], portArr[1])))
 
 	return portArr[0], portArr[1]
 }
@@ -81,7 +81,7 @@ func (cap *Capture) InPortRange(port uint16) bool {
 func (cap *Capture) FormatInText() string {
 	text := []string{}
 	for local, v := range cap.In {
-		for remote := range v.content {
+		for remote := range v.Content {
 			tmp := fmt.Sprintf("%15s -> %-21s", remote, colorPort(local.String()))
 			text = append(text, tmp)
 		}
@@ -91,7 +91,7 @@ func (cap *Capture) FormatInText() string {
 
 func (cap *Capture) FormatOutText() string {
 	text := []string{}
-	for remote := range cap.Out.content {
+	for remote := range cap.Out.Content {
 		text = append(text, fmt.Sprintf("%19s%-21s -> %-23s", "", cap.LocalIP, colorPort(remote)))
 	}
 	return strings.Join(text, "\n")
@@ -114,11 +114,11 @@ func (cap *Capture) DisplayInfo(ctx context.Context, printer *pterm.AreaPrinter)
 	}
 }
 
-func (cap *Capture) SaveToFile() {
-	fmt.Println("Saving to file: data.txt")
-	filePath := "data.txt"
+func (cap *Capture) SaveToFile(name string) {
+	filename := fmt.Sprintf("%s.txt", name)
+	fmt.Printf("Saving to file: %s\n", filename)
 
-	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		fmt.Println("Unable to open file:", err)
 		return
@@ -128,7 +128,7 @@ func (cap *Capture) SaveToFile() {
 	// Write IN data
 	text := []string{}
 	for local, v := range cap.In {
-		for remote := range v.content {
+		for remote := range v.Content {
 			tmp := fmt.Sprintf("%s<-%s", local, remote)
 			text = append(text, tmp)
 		}
@@ -137,7 +137,7 @@ func (cap *Capture) SaveToFile() {
 
 	//Write OUT data
 	text = []string{}
-	for remote := range cap.Out.content {
+	for remote := range cap.Out.Content {
 		text = append(text, fmt.Sprintf("%s->%s", cap.LocalIP, remote))
 	}
 	outContent := strings.Join(text, "\n")

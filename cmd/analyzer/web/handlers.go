@@ -11,6 +11,6 @@ func NodeHandler(c *gin.Context) {
 }
 
 func EdgeHandler(c *gin.Context) {
-	data := []interface{}{}
-	c.JSON(http.StatusOK, data)
+	nodes := fakeNode()
+	c.JSON(http.StatusOK, fakeEdge(nodes))
 }

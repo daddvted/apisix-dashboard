@@ -3,6 +3,7 @@ var allNodes;
 var highlightActive = false;
 
 var nodes;
+var edges;
 $.ajax({
   url: 'http://192.168.2.98:8080/node',
   dataType: 'json',
@@ -15,9 +16,21 @@ $.ajax({
   }
 });
 
+$.ajax({
+  url: 'http://192.168.2.98:8080/edge',
+  dataType: 'json',
+  async: false,
+  success: function(data) {
+    edges = data;
+  },
+  error: function(xhr, status, error) {
+    console.error('There was a problem with the request:', error);
+  }
+});
+
 console.log("nodes: ", nodes)
 var nodesDataset = new vis.DataSet(nodes); // these come from WorldCup2014.js
-var edgesDataset = new vis.DataSet([]); // these come from WorldCup2014.js
+var edgesDataset = new vis.DataSet(edges)// these come from WorldCup2014.js
 
 function redrawAll() {
   var container = document.getElementById("serviceMap");

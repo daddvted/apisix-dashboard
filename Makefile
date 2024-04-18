@@ -25,10 +25,10 @@ debug:
 ### BUILDING
 #captor: $(shell find ./cmd/captor -type f  -name '*.go')
 captor: 
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o captor cmd/captor/main.go \
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o captor cmd/captor/main.go 
 
 analyzer: 
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(LDFLAGS) -o analyzer cmd/analyzer/main.go \
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(LDFLAGS) -o analyzer cmd/analyzer/main.go
 
 all: captor analyzer
 

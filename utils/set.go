@@ -4,22 +4,22 @@ type zero struct{} // Empty stuct, 0 byte
 
 // Set is a data structure like Python
 type Set struct {
-	content map[string]zero
+	Content map[string]zero
 }
 
 func NewSet() *Set {
 	s := &Set{}
-	s.content = make(map[string]zero)
+	s.Content = make(map[string]zero)
 	return s
 }
 
 func (s *Set) Has(v string) bool {
-	_, ok := s.content[v]
+	_, ok := s.Content[v]
 	return ok
 }
 
 func (s *Set) Add(v string) {
-	s.content[v] = zero{}
+	s.Content[v] = zero{}
 }
 
 func (s *Set) AddList(l *[]string) {
@@ -29,23 +29,23 @@ func (s *Set) AddList(l *[]string) {
 }
 
 func (s *Set) Remove(v string) {
-	delete(s.content, v)
+	delete(s.Content, v)
 }
 
 func (s *Set) Size() int {
-	return len(s.content)
+	return len(s.Content)
 }
 
 func (s *Set) Clear() {
-	s.content = make(map[string]zero)
+	s.Content = make(map[string]zero)
 }
 
 func (s *Set) Union(s2 *Set) *Set {
 	ns := NewSet()
-	for v := range s.content {
+	for v := range s.Content {
 		ns.Add(v)
 	}
-	for v := range s2.content {
+	for v := range s2.Content {
 		ns.Add(v)
 	}
 	return ns
@@ -53,7 +53,7 @@ func (s *Set) Union(s2 *Set) *Set {
 
 func (s *Set) Intersect(s2 *Set) *Set {
 	ns := NewSet()
-	for v := range s.content {
+	for v := range s.Content {
 		if s2.Has(v) {
 			ns.Add(v)
 		}
@@ -63,7 +63,7 @@ func (s *Set) Intersect(s2 *Set) *Set {
 
 func (s *Set) Difference(s2 *Set) *Set {
 	ns := NewSet()
-	for v := range s.content {
+	for v := range s.Content {
 		if s2.Has(v) {
 			continue
 		}
