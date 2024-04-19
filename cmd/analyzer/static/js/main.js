@@ -20,6 +20,8 @@ $.ajax({
 
 
 console.log("nodes: ", nodes)
+console.log("edges: ", edges)
+
 var nodesDataset = new vis.DataSet(nodes); // these come from WorldCup2014.js
 var edgesDataset = new vis.DataSet(edges)// these come from WorldCup2014.js
 
@@ -27,15 +29,9 @@ function redrawAll() {
   var container = document.getElementById("serviceMap");
   var options = {
     nodes: {
-      shape: "dot",
       scaling: {
-        min: 10,
-        max: 30,
         label: {
-          min: 8,
-          max: 30,
-          drawThreshold: 12,
-          maxVisible: 20,
+          enabled: true,
         },
       },
       font: {

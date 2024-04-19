@@ -6,10 +6,8 @@ toolchain go1.22.2
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/dustinkirkland/golang-petname v0.0.0-20231002161417-6a283f1aaaf2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/gopacket v1.1.19
-	github.com/pmcxs/hexgrid v0.0.0-20190126214921-42796ac894ab
 	github.com/pterm/pterm v0.12.79
 )
 

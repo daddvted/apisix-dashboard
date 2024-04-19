@@ -12,25 +12,20 @@ type serviceJson struct {
 	Edges []Edge `json:"edges"`
 }
 
-func NodeHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, fakeNode())
-}
-
-func EdgeHandler(c *gin.Context) {
-	nodes := fakeNode()
-	c.JSON(http.StatusOK, fakeEdge(nodes))
-}
-
 func DataHandler(c *gin.Context) {
 	svcMap := GenerateServiceMap("data")
 	nodes, edges := GenerateNodeAndEdge(&svcMap)
-	fmt.Println(len(nodes))
-	fmt.Println(len(groupMap), len(nodeMap))
-	fmt.Println(nodeMap)
-	fmt.Println(groupMap)
+
+	fmt.Println("----- group map", len(groupMap), groupMap)
+	// fmt.Println("----- node map", len(nodeMap), nodeMap)
+
+	fmt.Printf("nodes: %d, edges: %d\n", len(nodes), len(edges))
+	fmt.Println(edges)
+
 	json := serviceJson{
 		Nodes: nodes,
 		Edges: edges,
 	}
+	fmt.Println(json)
 	c.JSON(http.StatusOK, json)
 }

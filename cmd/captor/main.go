@@ -37,7 +37,7 @@ func main() {
 	area, _ := pterm.DefaultArea.Start()
 
 	localIP := net.ParseIP(envParam.HostIP)
-	sport, eport := utils.GetLocalPortRange()
+	sport, eport := GetLocalPortRange()
 
 	// Process port exclusion
 	exPort := utils.NewSet()
@@ -47,14 +47,14 @@ func main() {
 		}
 	}
 
-	capture := utils.Capture{
+	capture := Capture{
 		StartPort: sport,
 		EndPort:   eport,
 		Ex:        *exPort,
 		LocalIP:   localIP,
 		NIC:       envParam.NIC,
 		Filter:    envParam.Filter,
-		In:        utils.InMap{},
+		In:        InMap{},
 		Out:       *utils.NewSet(),
 	}
 

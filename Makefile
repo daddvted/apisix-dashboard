@@ -23,9 +23,8 @@ LDFLAGS=-ldflags '-X github.com/daddvted/netswatch2/utils.Version=beta-$(TAG)'
 debug:
 	@echo $(TAG)
 ### BUILDING
-#captor: $(shell find ./cmd/captor -type f  -name '*.go')
-captor: 
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o captor cmd/captor/main.go 
+captor:
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build $(LDFLAGS) -o captor ./cmd/captor
 
 analyzer: 
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(LDFLAGS) -o analyzer cmd/analyzer/main.go

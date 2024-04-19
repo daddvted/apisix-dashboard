@@ -17,8 +17,6 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./static")
 
-	r.GET("/node", web.NodeHandler)
-	r.GET("/edge", web.EdgeHandler)
 	r.GET("/data", web.DataHandler)
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{

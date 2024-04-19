@@ -11,8 +11,6 @@ import (
 	"strings"
 
 	"github.com/daddvted/netswatch2/utils"
-
-	petname "github.com/dustinkirkland/golang-petname"
 )
 
 var groupMap, nodeMap map[string]int
@@ -28,8 +26,15 @@ type Node struct {
 	Label string  `json:"label"`
 	Title string  `json:"title"`
 	Group int     `json:"group"`
+	Shape string  `json:"shape"`
 	X     float64 `json:"x"`
 	Y     float64 `json:"y"`
+}
+
+func (n *Node) setDefault() {
+	if n.Shape == "" {
+		n.Shape = "circle"
+	}
 }
 
 type Edge struct {
@@ -40,14 +45,6 @@ type Edge struct {
 type ServiceTrace struct {
 	In  map[string]utils.Set // Map: key->service:port, value->Set of source IPs
 	Out utils.Set
-}
-
-func generatePetName(upper bool) string {
-	name := petname.Generate(2, "_")
-	if upper {
-		return strings.ToUpper(name)
-	}
-	return name
 }
 
 func generateRandomPointInCircle(centerX, centerY, radius float64) (float64, float64) {
@@ -61,95 +58,16 @@ func generateRandomPointInCircle(centerX, centerY, radius float64) (float64, flo
 	return x, y
 }
 
-func generateCenterPoint(angle float64, distance float64) (float64, float64) {
-	x := distance * math.Cos(angle*math.Pi)
-	y := distance * math.Sin(angle*math.Pi)
-	return x, y
-}
 func generateCenterPointByGroupID(gid int, distance float64) (float64, float64) {
-	// var centerX, centerY float64
 	angle := float64(gid%8) * 0.25
 	circle := math.Floor(float64(gid) / float64(8))
-	// fmt.Println(gid, angle, circle+1)
+
+	fmt.Println(gid, angle, circle+1)
+
 	centerX := float64(circle+1) * distance * math.Cos(angle*math.Pi)
 	centerY := float64(circle+1) * distance * math.Sin(angle*math.Pi)
 
 	return centerX, centerY
-}
-
-func generateGroupCoordinates(groups, nodesPerGroup int, distance float64) [][][2]float64 {
-	var allCoordinates [][][2]float64
-	var centerX, centerY float64
-	circle := 0
-
-	for groupID := 0; groupID < groups; groupID++ {
-		var groupCoordinates [][2]float64
-		if groupID == 0 {
-			centerX = 0
-			centerX = 0
-		} else {
-			// Clock algo
-			m := (groupID - 1) % 8
-			if m == 0 {
-				circle += 1
-			}
-			// Use 45° as angle, equals 0.25π
-			angle := float64(groupID%8) * 0.25
-			centerX, centerY = generateCenterPoint(angle, float64(circle)*distance)
-		}
-		for nodeID := 0; nodeID < nodesPerGroup; nodeID++ {
-			var x, y float64
-			x, y = generateRandomPointInCircle(centerX, centerY, 150)
-			groupCoordinates = append(groupCoordinates, [2]float64{x, y})
-		}
-		allCoordinates = append(allCoordinates, groupCoordinates)
-	}
-	return allCoordinates
-}
-
-func fakeNode() []Node {
-	nodes := []Node{}
-	nodeId := 0
-	groupCount := 20
-	elementsPerGroup := 5
-	minDistance := 600.0
-
-	coordinates := generateGroupCoordinates(groupCount, elementsPerGroup, minDistance)
-	for i, group := range coordinates {
-		// fmt.Printf("Group %d: %v\n", i+1, group)
-		for _, v := range group {
-			nodes = append(nodes, Node{
-				Id:    nodeId,
-				Label: generatePetName(false),
-				Title: generatePetName(false),
-				Group: i,
-				X:     v[0],
-				Y:     v[1],
-			})
-			nodeId += 1
-		}
-	}
-	return nodes
-}
-
-func fakeEdge(nodes []Node) []Edge {
-	l := len(nodes)
-	edges := []Edge{}
-	for i := 0; i < 40; i++ {
-		from := rand.Intn(l)
-		to := rand.Intn(l)
-
-		e := Edge{
-			From: from,
-			To:   to,
-		}
-
-		edges = append(edges, e)
-
-	}
-	fmt.Println(edges)
-
-	return edges
 }
 
 func readDirTextFiles(fsys fs.FS) ([]string, error) {
@@ -182,7 +100,6 @@ func readDirTextFiles(fsys fs.FS) ([]string, error) {
 			}
 		}
 	}
-
 	return texts, nil
 }
 
@@ -300,22 +217,23 @@ func GenerateNodeAndEdge(svcMap *map[string]ServiceTrace) ([]Node, []Edge) {
 		x, y := generateRandomPointInCircle(centerX, centerY, groupRadius)
 
 		hostNodeId, exists := getNodeID(hostIP)
-		// fmt.Println(hostNodeId, exists)
 		if !exists {
 			node := Node{
 				Id:    hostNodeId,
 				Label: hostIP,
 				Title: hostIP,
 				Group: gid,
-				X:     x,
-				Y:     y,
+				// Shape: "box",
+				X: x,
+				Y: y,
 			}
+			node.setDefault()
 			nodes = append(nodes, node)
 		}
 
 		// Create nodes and edges from "In" field of ServiceTrace
 		for svc, vv := range svcTrace.In {
-
+			centerX, centerY := generateCenterPointByGroupID(gid, groupDistance)
 			x, y := generateRandomPointInCircle(centerX, centerY, groupRadius)
 			// Create local service node
 			svcNodeId, exists := getNodeID(svc)
@@ -328,13 +246,28 @@ func GenerateNodeAndEdge(svcMap *map[string]ServiceTrace) ([]Node, []Edge) {
 					X:     x,
 					Y:     y,
 				}
+				node.setDefault()
 				nodes = append(nodes, node)
-
 			}
 
 			// Create edges
 			for srcIP := range vv.Content {
-				nid, _ := getNodeID(srcIP)
+				nid, exists := getNodeID(srcIP)
+				srcGid := getGroupID(srcIP)
+				centerX, centerY := generateCenterPointByGroupID(srcGid, groupDistance)
+				x, y := generateRandomPointInCircle(centerX, centerY, groupRadius)
+				if !exists {
+					node := Node{
+						Id:    nid,
+						Label: srcIP,
+						Title: srcIP,
+						Group: srcGid,
+						X:     x,
+						Y:     y,
+					}
+					node.setDefault()
+					nodes = append(nodes, node)
+				}
 				edge := Edge{
 					From: nid,
 					To:   svcNodeId,
@@ -361,6 +294,7 @@ func GenerateNodeAndEdge(svcMap *map[string]ServiceTrace) ([]Node, []Edge) {
 					X:     x,
 					Y:     y,
 				}
+				node.setDefault()
 				nodes = append(nodes, node)
 			}
 
