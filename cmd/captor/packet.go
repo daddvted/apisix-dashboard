@@ -1,4 +1,4 @@
-package utils
+package main
 
 import (
 	"context"
@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/daddvted/netswatch2/utils"
+
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
@@ -19,12 +21,12 @@ import (
 type Capture struct {
 	StartPort uint16
 	EndPort   uint16
-	Ex        Set
+	Ex        utils.Set
 	LocalIP   net.IP
 	NIC       string
 	Filter    string
 	In        InMap
-	Out       Set
+	Out       utils.Set
 }
 
 type PacketData struct {
@@ -32,7 +34,7 @@ type PacketData struct {
 	Tcp layers.TCP
 }
 
-type InMap map[netip.AddrPort]Set
+type InMap map[netip.AddrPort]utils.Set
 
 func colorPort(text string) string {
 	// text format "ip:port"
@@ -237,7 +239,7 @@ func (cap *Capture) ParsePacket(ctx context.Context) {
 								val.Add(ipStr)
 							}
 						} else {
-							set := NewSet()
+							set := utils.NewSet()
 							set.Add(ip4.SrcIP.String())
 							cap.In[addrPort] = *set
 						}
@@ -266,8 +268,6 @@ func (cap *Capture) ParsePacket(ctx context.Context) {
 					}
 				}
 			} //ipLayer != nil
-
-			// cap.DisplayInfo(printer)
 		}
 	}
 }
