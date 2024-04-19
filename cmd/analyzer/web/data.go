@@ -15,6 +15,14 @@ import (
 	petname "github.com/dustinkirkland/golang-petname"
 )
 
+var groupMap, nodeMap map[string]int
+
+func init() {
+	groupMap = make(map[string]int)
+	nodeMap = make(map[string]int)
+
+}
+
 type Node struct {
 	Id    int     `json:"id"`
 	Label string  `json:"label"`
@@ -29,8 +37,8 @@ type Edge struct {
 	To   int `json:"to"`
 }
 
-type Service struct {
-	In  map[string]utils.Set
+type ServiceTrace struct {
+	In  map[string]utils.Set // Map: key->service:port, value->Set of source IPs
 	Out utils.Set
 }
 
@@ -57,6 +65,16 @@ func generateCenterPoint(angle float64, distance float64) (float64, float64) {
 	x := distance * math.Cos(angle*math.Pi)
 	y := distance * math.Sin(angle*math.Pi)
 	return x, y
+}
+func generateCenterPointByGroupID(gid int, distance float64) (float64, float64) {
+	// var centerX, centerY float64
+	angle := float64(gid%8) * 0.25
+	circle := math.Floor(float64(gid) / float64(8))
+	// fmt.Println(gid, angle, circle+1)
+	centerX := float64(circle+1) * distance * math.Cos(angle*math.Pi)
+	centerY := float64(circle+1) * distance * math.Sin(angle*math.Pi)
+
+	return centerX, centerY
 }
 
 func generateGroupCoordinates(groups, nodesPerGroup int, distance float64) [][][2]float64 {
@@ -168,78 +186,192 @@ func readDirTextFiles(fsys fs.FS) ([]string, error) {
 	return texts, nil
 }
 
-func AnalyzeService(dataPath string) {
-	svcMap := make(map[string]Service)
+func GenerateServiceMap(dataPath string) map[string]ServiceTrace {
+	svcTrace := make(map[string]ServiceTrace)
 
 	fsys := os.DirFS(dataPath)
 
 	texts, err := readDirTextFiles(fsys)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		return svcTrace
 	}
 
-	// 	val, ok := svcMap["foo"]
-	// // If the key exists
-	// if ok {
-	//     // Do something
-	// }
-
 	for _, text := range texts {
+		// Process OUT service
 		if strings.Contains(text, "->") {
+			arr := strings.Split(text, "->")
+			srcIP := arr[0]
+			outSvc := arr[1]
 
-			tmp := strings.Split(text, "->")
-			ip := tmp[0]
-			outSvc := tmp[1]
-
-			if val, ok := svcMap[ip]; ok {
+			if val, ok := svcTrace[srcIP]; ok {
+				// Found service with source IP in service map
 				if !val.Out.Has(outSvc) {
 					val.Out.Add(outSvc)
 				}
 			} else {
-				svcMap[ip] = Service{
+				// Service with source IP not found, create a new Service,
+				// leave "In" field empty
+				outSet := utils.NewSet()
+				outSet.Add(outSvc)
+
+				svcTrace[srcIP] = ServiceTrace{
 					In:  make(map[string]utils.Set),
-					Out: *utils.NewSet(),
+					Out: *outSet,
 				}
 			}
-
 		}
-		if strings.Contains(text, "<-") {
-			tmp := strings.Split(text, "<-")
-			localSvc := tmp[0]
-			inIP := tmp[1]
 
-			ip := strings.Split(localSvc, ":")[0]
+		// Process IN service
+		if strings.Contains(text, "<-") {
+			arr := strings.Split(text, "<-")
+			localSvc := arr[0]
+			inIP := arr[1]
+
+			dstIP := strings.Split(localSvc, ":")[0]
 
 			//Two level check
-			if val, ok := svcMap[ip]; ok {
+			// 1. Check service with dstIP in service map
+			// 2. Check "In" field of "Service"
+			if val, ok := svcTrace[dstIP]; ok {
 				if v, check := val.In[localSvc]; check {
 					if !v.Has(inIP) {
 						v.Add(inIP)
 					}
 				} else {
-					svcMap[ip].In[localSvc] = *utils.NewSet()
+					// fmt.Println(inIP, text)
+					newSet := utils.NewSet()
+					newSet.Add(inIP)
+					svcTrace[dstIP].In[localSvc] = *newSet
 				}
 			} else {
-				svcMap[ip] = Service{
-					In:  make(map[string]utils.Set),
+				newSet := utils.NewSet()
+				newSet.Add(inIP)
+				in := make(map[string]utils.Set)
+				in[localSvc] = *newSet
+
+				svcTrace[dstIP] = ServiceTrace{
+					In:  in,
 					Out: *utils.NewSet(),
 				}
 			}
 		}
 	}
-	// fmt.Println(svcMap)
-	// fmt.Println(len(svcMap))
-	for k, v := range svcMap {
-		for svc, vv := range v.In {
-			for outer := range vv.Content {
-				fmt.Printf("%s<-%s\n", svc, outer)
+
+	return svcTrace
+}
+
+func getGroupID(target string) int {
+	groupID := 0
+	if val, ok := groupMap[target]; ok {
+		groupID = val
+	} else {
+		groupID = len(groupMap) + 1
+		groupMap[target] = groupID
+	}
+	return groupID
+}
+
+func getNodeID(target string) (int, bool) {
+	nodeID := 0
+	if val, ok := nodeMap[target]; ok {
+		return val, ok
+	} else {
+		nodeID = len(nodeMap) + 1
+		nodeMap[target] = nodeID
+		return nodeID, false
+	}
+}
+
+func GenerateNodeAndEdge(svcMap *map[string]ServiceTrace) ([]Node, []Edge) {
+	// Clean groupMap and nodeMap
+	groupMap = make(map[string]int)
+	nodeMap = make(map[string]int)
+
+	nodes := []Node{}
+	edges := []Edge{}
+	groupRadius := 150.0
+	groupDistance := 600.0
+
+	for hostIP, svcTrace := range *svcMap {
+		// Generate host Node
+		gid := getGroupID(hostIP)
+		centerX, centerY := generateCenterPointByGroupID(gid, groupDistance)
+		x, y := generateRandomPointInCircle(centerX, centerY, groupRadius)
+
+		hostNodeId, exists := getNodeID(hostIP)
+		// fmt.Println(hostNodeId, exists)
+		if !exists {
+			node := Node{
+				Id:    hostNodeId,
+				Label: hostIP,
+				Title: hostIP,
+				Group: gid,
+				X:     x,
+				Y:     y,
+			}
+			nodes = append(nodes, node)
+		}
+
+		// Create nodes and edges from "In" field of ServiceTrace
+		for svc, vv := range svcTrace.In {
+
+			x, y := generateRandomPointInCircle(centerX, centerY, groupRadius)
+			// Create local service node
+			svcNodeId, exists := getNodeID(svc)
+			if !exists {
+				node := Node{
+					Id:    svcNodeId,
+					Label: svc,
+					Title: svc,
+					Group: gid,
+					X:     x,
+					Y:     y,
+				}
+				nodes = append(nodes, node)
+
 			}
 
+			// Create edges
+			for srcIP := range vv.Content {
+				nid, _ := getNodeID(srcIP)
+				edge := Edge{
+					From: nid,
+					To:   svcNodeId,
+				}
+				edges = append(edges, edge)
+			}
 		}
-		fmt.Println(v.Out.Size())
-		for out := range v.Out.Content {
-			fmt.Printf("%s->%s\n", k, out)
+
+		// Create nodes and edges from "Out" field of Service Trace
+		for remoteSvc := range svcTrace.Out.Content {
+			// Create remote service node
+			remoteHost := strings.Split(remoteSvc, ":")[0]
+			svcGroupID := getGroupID(remoteHost)
+			centerX, centerY := generateCenterPointByGroupID(svcGroupID, groupDistance)
+			x, y := generateRandomPointInCircle(centerX, centerY, groupRadius)
+
+			svcNodeId, exits := getNodeID(remoteSvc)
+			if !exits {
+				node := Node{
+					Id:    svcNodeId,
+					Label: remoteSvc,
+					Title: remoteSvc,
+					Group: svcGroupID,
+					X:     x,
+					Y:     y,
+				}
+				nodes = append(nodes, node)
+			}
+
+			// Create edges
+			nid, _ := getNodeID(remoteSvc)
+			edges = append(edges, Edge{
+				From: hostNodeId,
+				To:   nid,
+			})
 		}
 	}
+
+	return nodes, edges
 }

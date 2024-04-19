@@ -4,29 +4,20 @@ var highlightActive = false;
 
 var nodes;
 var edges;
+
 $.ajax({
-  url: 'http://192.168.2.98:8080/node',
+  url: 'http://192.168.2.98:8080/data',
   dataType: 'json',
   async: false,
   success: function(data) {
-    nodes = data;
+    nodes = data.nodes;
+    edges = data.edges;
   },
   error: function(xhr, status, error) {
     console.error('There was a problem with the request:', error);
   }
 });
 
-$.ajax({
-  url: 'http://192.168.2.98:8080/edge',
-  dataType: 'json',
-  async: false,
-  success: function(data) {
-    edges = data;
-  },
-  error: function(xhr, status, error) {
-    console.error('There was a problem with the request:', error);
-  }
-});
 
 console.log("nodes: ", nodes)
 var nodesDataset = new vis.DataSet(nodes); // these come from WorldCup2014.js
