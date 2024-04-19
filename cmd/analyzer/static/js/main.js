@@ -34,10 +34,10 @@ function redrawAll() {
           enabled: true,
         },
       },
-      font: {
-        size: 12,
-        face: "Tahoma",
-      },
+      // font: {
+      //   size: 24,
+      //   face: "Tahoma",
+      // },
     },
     edges: {
       width: 0.15,
@@ -61,7 +61,9 @@ function redrawAll() {
   // get a JSON object
   allNodes = nodesDataset.get({ returnType: "Object" });
 
+  // Add event listener
   network.on("click", neighbourhoodHighlight);
+  network.on("hoverNode", showInfo);
 }
 
 function neighbourhoodHighlight(params) {
@@ -140,4 +142,8 @@ function neighbourhoodHighlight(params) {
   nodesDataset.update(updateArray);
 }
 
+function showInfo(params) {
+  console.log(params.node);
+  console.log(nodes[params.node]);
+}
 redrawAll();

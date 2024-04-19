@@ -38,8 +38,9 @@ func (n *Node) setDefault() {
 }
 
 type Edge struct {
-	From int `json:"from"`
-	To   int `json:"to"`
+	From   int    `json:"from"`
+	To     int    `json:"to"`
+	Arrows string `json:"arrows"`
 }
 
 type ServiceTrace struct {
@@ -207,8 +208,8 @@ func GenerateNodeAndEdge(svcMap *map[string]ServiceTrace) ([]Node, []Edge) {
 
 	nodes := []Node{}
 	edges := []Edge{}
-	groupRadius := 150.0
-	groupDistance := 600.0
+	groupRadius := 200.0
+	groupDistance := 1000.0
 
 	for hostIP, svcTrace := range *svcMap {
 		// Generate host Node
@@ -269,8 +270,9 @@ func GenerateNodeAndEdge(svcMap *map[string]ServiceTrace) ([]Node, []Edge) {
 					nodes = append(nodes, node)
 				}
 				edge := Edge{
-					From: nid,
-					To:   svcNodeId,
+					From:   nid,
+					To:     svcNodeId,
+					Arrows: "to",
 				}
 				edges = append(edges, edge)
 			}
@@ -301,8 +303,9 @@ func GenerateNodeAndEdge(svcMap *map[string]ServiceTrace) ([]Node, []Edge) {
 			// Create edges
 			nid, _ := getNodeID(remoteSvc)
 			edges = append(edges, Edge{
-				From: hostNodeId,
-				To:   nid,
+				From:   hostNodeId,
+				To:     nid,
+				Arrows: "to",
 			})
 		}
 	}
