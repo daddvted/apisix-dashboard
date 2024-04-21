@@ -33,7 +33,8 @@ type Node struct {
 
 func (n *Node) setDefault() {
 	if n.Shape == "" {
-		n.Shape = "circle"
+		// n.Shape = "circle"
+		n.Shape = "dot"
 	}
 }
 

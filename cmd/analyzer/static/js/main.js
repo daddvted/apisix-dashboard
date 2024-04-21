@@ -6,7 +6,8 @@ var nodes;
 var edges;
 
 $.ajax({
-  url: 'http://192.168.2.98:8080/data',
+  // url: 'http://192.168.2.98:8080/data',
+  url: 'http://localhost:8080/data',
   dataType: 'json',
   async: false,
   success: function(data) {
@@ -49,7 +50,7 @@ function redrawAll() {
     physics: false,
     interaction: {
       hover: true,
-      tooltipDelay: 200,
+      // tooltipDelay: 200,
       hideEdgesOnDrag: true,
       hideEdgesOnZoom: true,
     },
@@ -144,6 +145,9 @@ function neighbourhoodHighlight(params) {
 
 function showInfo(params) {
   console.log(params.node);
-  console.log(nodes[params.node]);
+  console.log(nodes[params.node-1 ]);
 }
+
+
+
 redrawAll();
