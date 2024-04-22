@@ -6,8 +6,8 @@ var nodes;
 var edges;
 
 $.ajax({
-  // url: 'http://192.168.2.98:8080/data',
-  url: 'http://localhost:8080/data',
+  url: 'http://192.168.2.98:8080/data',
+  // url: 'http://localhost:8080/data',
   dataType: 'json',
   async: false,
   success: function(data) {
@@ -19,26 +19,19 @@ $.ajax({
   }
 });
 
-
 console.log("nodes: ", nodes)
 console.log("edges: ", edges)
 
-var nodesDataset = new vis.DataSet(nodes); // these come from WorldCup2014.js
-var edgesDataset = new vis.DataSet(edges)// these come from WorldCup2014.js
+var nodesDataset = new vis.DataSet(nodes);  // these come from WorldCup2014.js
+var edgesDataset = new vis.DataSet(edges);  // these come from WorldCup2014.js
 
 function redrawAll() {
   var container = document.getElementById("serviceMap");
   var options = {
     nodes: {
-      scaling: {
-        label: {
-          enabled: true,
-        },
-      },
-      // font: {
-      //   size: 24,
-      //   face: "Tahoma",
-      // },
+      font: {
+        size: 30
+      }
     },
     edges: {
       width: 0.15,
@@ -50,12 +43,12 @@ function redrawAll() {
     physics: false,
     interaction: {
       hover: true,
-      // tooltipDelay: 200,
+      // tooltipDelay: 3600000,
       hideEdgesOnDrag: true,
       hideEdgesOnZoom: true,
     },
   };
-  var data = { nodes: nodesDataset, edges: edgesDataset }; // Note: data is coming from ./datasources/WorldCup2014.js
+  var data = { nodes: nodesDataset, edges: edgesDataset };
 
   network = new vis.Network(container, data, options);
 
@@ -65,6 +58,7 @@ function redrawAll() {
   // Add event listener
   network.on("click", neighbourhoodHighlight);
   network.on("hoverNode", showInfo);
+  // network.on("zoom", zoomHandler);
 }
 
 function neighbourhoodHighlight(params) {
@@ -144,10 +138,29 @@ function neighbourhoodHighlight(params) {
 }
 
 function showInfo(params) {
+  let nodeID = params.node - 1;
+  // console.log(nodes[nodeID]);
   console.log(params.node);
   console.log(nodes[params.node-1 ]);
+  $('#info').text("try to loading...");
+
+  // data.nodes.update({id: 1, label: 'AAAAAAAAAAAAAAA'});
+  // nodesDataset.update({id: nodeID, label: 'AAAAAAAAAAAAAAA'});
+  // network.interactionHandler._checkShowPopup(params.pointer.DOM);
 }
 
+function zoomHandler() {
+  var options = {
+      nodes: {
+          // 1/scale to make text larger as scale is smaller
+          // 16 is my default font size
+          font: {
+              size: ( 1 / network.getScale() ) * 10
+          }              
+      }
+  };
+  network.setOptions(options);
+}
 
 
 redrawAll();
