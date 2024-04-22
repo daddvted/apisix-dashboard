@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 
@@ -29,10 +30,20 @@ func init() {
 	}
 }
 
+func printCurrentEnv() {
+	fmt.Println(pterm.Gray("当前配置环境变量:"))
+	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_HOST_IP(抓取的本机IP): %s", envParam.HostIP)))
+	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_NIC(抓取的网卡名): %s", envParam.NIC)))
+	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_FILTER(抓取过滤条件): %s", envParam.Filter)))
+	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_EX_PORT(需要排除的随机端口作为服务端，多个端口逗号分隔): %s", strings.Join(envParam.ExPort, ","))))
+}
+
 func main() {
 	pterm.EnableDebugMessages()
 	fmt.Println(pterm.Yellow(utils.Version))
 	pterm.Info.Println("Ctrl+C to stop")
+
+	printCurrentEnv()
 
 	area, _ := pterm.DefaultArea.Start()
 
