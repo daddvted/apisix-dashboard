@@ -5,35 +5,29 @@
     <title>
       {{.title}}
     </title>
+    <link rel="stylesheet" href="static/css/typo.css"/>
 
     <script src="static/js/jquery-3.7.1.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    <!-- <script type="text/javascript" src="static/js/datasources/WorldCup2014.js"></script> -->
-    <!-- <script type="text/javascript" src="static/js/datasources/ServiceMap.js"></script> -->
 
     <style type="text/css">
-      /* #serviceMap{
-      } */
-
-      html,
-      body,
+      body {
+        padding-left: 10px;
+      }
+      i.serif{ text-transform:lowercase; color:#1abc9c; }
       #serviceMap {
         margin: 0px;
         padding: 0px;
-      }
-      
-      #serviceMap {
-        /* position: fixed; */
         width: 100%;
-        height: 800px;
+        height: 100vh;
         /* border: 1px solid lightgray; */
       }
     </style>
   </head>
 
   <body>
-    <h2>生产环境服务</h2>
-    <div id="info">   </div>
+    <h1>生产环境服务关系</h1>
+    <p><strong id="info"></strong></p>
     <div id="serviceMap"></div>
     <script type="text/javascript" src="static/js/main.js"></script>
   </body>

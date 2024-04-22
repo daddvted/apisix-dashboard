@@ -6,8 +6,7 @@ var nodes;
 var edges;
 
 $.ajax({
-  url: 'http://192.168.2.98:8080/data',
-  // url: 'http://localhost:8080/data',
+  url: `${window.location.origin}/data`,
   dataType: 'json',
   async: false,
   success: function(data) {
@@ -142,11 +141,41 @@ function showInfo(params) {
   // console.log(nodes[nodeID]);
   console.log(params.node);
   console.log(nodes[params.node-1 ]);
-  $('#info').text("try to loading...");
+  let label = nodes[nodeID].label;
+  if(label && label.includes(":")){
+    let arr = label.split(":");
+    let ip = arr[0];
+    let port = arr[1];
+    $.ajax({
+      url: `${window.location.origin}/service`,
+      // url: 'http://localhost:8080/data',
+      data: {
+        ip: ip,
+        port: port
+      },
+      dataType: 'json',
+      async: false,
+      success: function(resp) {
+        console.log(resp);
+        if (resp.count > 0) {
+          let svc = resp.results[0];
+          console.log(svc);
+          $('#info').html(`名称：<i class="serif">${svc.name}</i>, 子系统：<i class="serif">${svc.custom_fields.subsystem}</i>`);
+        } else {
+          $('#info').html(`<mark>未查询到${label}的信息</mark>`);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('There was a problem with the request:', error);
+      }
+    });
+  } else {
+    // $('#info').text(`${label} 不包含服务端口`)
+    $('#info').html(`<mark>${label} 不包含服务端口</mark>`)
+  }
 
-  // data.nodes.update({id: 1, label: 'AAAAAAAAAAAAAAA'});
-  // nodesDataset.update({id: nodeID, label: 'AAAAAAAAAAAAAAA'});
-  // network.interactionHandler._checkShowPopup(params.pointer.DOM);
+  // $('#info').text(`searching service: ${label}`);
+
 }
 
 function zoomHandler() {
@@ -161,6 +190,5 @@ function zoomHandler() {
   };
   network.setOptions(options);
 }
-
 
 redrawAll();

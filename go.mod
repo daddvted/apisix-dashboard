@@ -5,6 +5,7 @@ go 1.21.0
 toolchain go1.22.2
 
 require (
+	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/gopacket v1.1.19
