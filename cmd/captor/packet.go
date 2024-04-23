@@ -49,10 +49,14 @@ func colorPort(text string) string {
 }
 
 func GetLocalPortRange() (uint16, uint16) {
+	// Linux default :32768-61000
+	startPort := 32768
+	endPort := 65535
+
 	content, err := os.ReadFile("/proc/sys/net/ipv4/ip_local_port_range")
 	if err != nil {
 		fmt.Println("Get local port range error, use default range 49152-65535")
-		return 49152, 65535
+		return uint16(startPort), uint16(endPort)
 	}
 
 	portArr := []uint16{}
@@ -60,9 +64,13 @@ func GetLocalPortRange() (uint16, uint16) {
 		portInt, err := strconv.ParseUint(port, 10, 16)
 		if err != nil {
 			fmt.Println("Parse local port range error, use default range 49152-65535")
-			return 49152, 65535
+			return uint16(startPort), uint16(endPort)
 		}
 		portArr = append(portArr, uint16(portInt))
+	}
+
+	if portArr[0] < 30000 {
+		portArr[0] = uint16(startPort)
 	}
 	fmt.Println(pterm.Gray(fmt.Sprintf("Local port range: %d-%d\n", portArr[0], portArr[1])))
 
