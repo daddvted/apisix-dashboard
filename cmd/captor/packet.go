@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/daddvted/netswatch2/utils"
@@ -19,14 +20,16 @@ import (
 )
 
 type Capture struct {
-	MinPort uint16
-	MaxPort uint16
-	Ex      utils.Set
-	LocalIP net.IP
-	NIC     string
-	Filter  string
-	In      InMap
-	Out     utils.Set
+	Mu       sync.Mutex
+	MinPort  uint16
+	MaxPort  uint16
+	Ex       utils.Set
+	LocalIP  net.IP
+	NIC      string
+	Filter   string
+	In       InMap
+	Out      utils.Set
+	ExPublic bool
 }
 
 type PacketData struct {
@@ -48,35 +51,6 @@ func colorPort(text string) string {
 	}
 }
 
-func GetLocalPortRange(min string) (uint16, uint16) {
-	// Linux default :32768-61000
-	startPort := 32768
-	endPort := 65535
-
-	content, err := os.ReadFile("/proc/sys/net/ipv4/ip_local_port_range")
-	if err != nil {
-		fmt.Println("Get local port range error, use default range 49152-65535")
-		return uint16(startPort), uint16(endPort)
-	}
-
-	portArr := []uint16{}
-	for _, port := range strings.Fields(strings.TrimSpace(string(content))) {
-		portInt, err := strconv.ParseUint(port, 10, 16)
-		if err != nil {
-			fmt.Println("Parse local port range error, use default range 49152-65535")
-			return uint16(startPort), uint16(endPort)
-		}
-		portArr = append(portArr, uint16(portInt))
-	}
-
-	if portArr[0] < 30000 {
-		portArr[0] = uint16(startPort)
-	}
-	fmt.Println(pterm.Gray(fmt.Sprintf("Local port range: %d-%d\n", portArr[0], portArr[1])))
-
-	return portArr[0], portArr[1]
-}
-
 func (cap *Capture) InPortRange(port uint16) bool {
 	portStr := strconv.FormatUint(uint64(port), 10)
 	if cap.Ex.Has(portStr) {
@@ -90,17 +64,23 @@ func (cap *Capture) InPortRange(port uint16) bool {
 
 func (cap *Capture) FormatInText() string {
 	text := []string{}
+
+	cap.Mu.Lock()
+	defer cap.Mu.Unlock()
 	for local, v := range cap.In {
 		for remote := range v.Content {
 			tmp := fmt.Sprintf("%15s -> %-21s", remote, colorPort(local.String()))
 			text = append(text, tmp)
 		}
 	}
+
 	return strings.Join(text, "\n")
 }
 
 func (cap *Capture) FormatOutText() string {
 	text := []string{}
+	cap.Mu.Lock()
+	defer cap.Mu.Unlock()
 	for remote := range cap.Out.Content {
 		text = append(text, fmt.Sprintf("%19s%-21s -> %-23s", "", cap.LocalIP, colorPort(remote)))
 	}
@@ -201,17 +181,21 @@ func (cap *Capture) ParsePacket(ctx context.Context) {
 			// Only process non-nil IP packet
 			if ipLayer != nil {
 				ip4, _ = ipLayer.(*layers.IPv4)
-				// fmt.Println("ip4: ", ip4.Length)
+
+				if cap.ExPublic {
+					if !(ip4.SrcIP.IsPrivate() && ip4.DstIP.IsPrivate()) {
+						continue
+					}
+				}
+
 				tcpLayer := packet.Layer(layers.LayerTypeTCP)
 				if tcpLayer != nil {
 					tcp, _ = tcpLayer.(*layers.TCP)
-					// fmt.Println("tcp: ", len(tcp.Payload))
 				}
 
 				udpLayer := packet.Layer(layers.LayerTypeUDP)
 				if udpLayer != nil {
 					udp, _ = udpLayer.(*layers.UDP)
-					// fmt.Println("udp: ", len(udp.Payload))
 				}
 
 				if tcp == nil && udp == nil {
