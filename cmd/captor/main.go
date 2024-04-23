@@ -16,10 +16,11 @@ import (
 )
 
 type EnvParam struct {
-	Filter string   `env:"NW2_FILTER" envDefault:"tcp and not port 22"`
-	HostIP string   `env:"NW2_HOST_IP" envDefault:"127.0.0.1"`
-	NIC    string   `env:"NW2_NIC" envDefault:"eth0"`
-	ExPort []string `env:"NW2_EX_PORT" envSeparator:","`
+	Filter  string   `env:"NW2_FILTER" envDefault:"tcp and not port 22 or udp"`
+	HostIP  string   `env:"NW2_HOST_IP" envDefault:"127.0.0.1"`
+	NIC     string   `env:"NW2_NIC" envDefault:"eth0"`
+	MinPort uint16   `env:"NW2_MIN_PORT" envDefault:"10000"`
+	ExPort  []string `env:"NW2_EX_PORT" envSeparator:","`
 }
 
 var envParam EnvParam
@@ -35,7 +36,8 @@ func printCurrentEnv() {
 	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_HOST_IP(抓取的本机IP): %s", envParam.HostIP)))
 	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_NIC(抓取的网卡名): %s", envParam.NIC)))
 	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_FILTER(抓取过滤条件): %s", envParam.Filter)))
-	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_EX_PORT(需要排除的随机端口作为服务端，多个端口逗号分隔): %s", strings.Join(envParam.ExPort, ","))))
+	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_MIN_PORT(最小随机端口): %d", envParam.MinPort)))
+	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_EX_PORT(如果服务端口大于最小随机端口，将服务端口添加到该变量中，多个端口逗号分隔): %s", strings.Join(envParam.ExPort, ","))))
 }
 
 func main() {
@@ -44,11 +46,11 @@ func main() {
 	pterm.Info.Println("Ctrl+C to stop")
 
 	printCurrentEnv()
+	fmt.Println(pterm.Gray(fmt.Sprintf("Local port range: %d-%d\n", envParam.MinPort, 65535)))
 
 	area, _ := pterm.DefaultArea.Start()
 
 	localIP := net.ParseIP(envParam.HostIP)
-	sport, eport := GetLocalPortRange()
 
 	// Process port exclusion
 	exPort := utils.NewSet()
@@ -59,14 +61,14 @@ func main() {
 	}
 
 	capture := Capture{
-		StartPort: sport,
-		EndPort:   eport,
-		Ex:        *exPort,
-		LocalIP:   localIP,
-		NIC:       envParam.NIC,
-		Filter:    envParam.Filter,
-		In:        InMap{},
-		Out:       *utils.NewSet(),
+		MinPort: envParam.MinPort,
+		MaxPort: 65535,
+		Ex:      *exPort,
+		LocalIP: localIP,
+		NIC:     envParam.NIC,
+		Filter:  envParam.Filter,
+		In:      InMap{},
+		Out:     *utils.NewSet(),
 	}
 
 	// In = make(map[netip.AddrPort]utils.Set)

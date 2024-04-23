@@ -19,14 +19,14 @@ import (
 )
 
 type Capture struct {
-	StartPort uint16
-	EndPort   uint16
-	Ex        utils.Set
-	LocalIP   net.IP
-	NIC       string
-	Filter    string
-	In        InMap
-	Out       utils.Set
+	MinPort uint16
+	MaxPort uint16
+	Ex      utils.Set
+	LocalIP net.IP
+	NIC     string
+	Filter  string
+	In      InMap
+	Out     utils.Set
 }
 
 type PacketData struct {
@@ -48,7 +48,7 @@ func colorPort(text string) string {
 	}
 }
 
-func GetLocalPortRange() (uint16, uint16) {
+func GetLocalPortRange(min string) (uint16, uint16) {
 	// Linux default :32768-61000
 	startPort := 32768
 	endPort := 65535
@@ -82,7 +82,7 @@ func (cap *Capture) InPortRange(port uint16) bool {
 	if cap.Ex.Has(portStr) {
 		return false
 	}
-	if port < cap.StartPort || port > cap.EndPort {
+	if port < cap.MinPort || port > cap.MaxPort {
 		return false
 	}
 	return true
@@ -119,7 +119,6 @@ func (cap *Capture) DisplayInfo(ctx context.Context, printer *pterm.AreaPrinter)
 			printer.Update(pterm.Sprintf(sumText + "\n" + inText + "\n" + outText + "\n"))
 
 			time.Sleep(time.Second * 1)
-
 		}
 	}
 }
@@ -157,7 +156,6 @@ func (cap *Capture) SaveToFile(name string) {
 		fmt.Println("Unable to write:", err)
 		return
 	}
-
 }
 
 func (cap *Capture) Sum() string {
@@ -220,7 +218,7 @@ func (cap *Capture) ParsePacket(ctx context.Context) {
 					continue
 				}
 
-				// Process IN packet
+				// ====== Process IN packet ======
 				if ip4.DstIP.Equal(cap.LocalIP) {
 					var port uint16
 					if tcp != nil && len(tcp.Payload) > 0 {
@@ -254,20 +252,24 @@ func (cap *Capture) ParsePacket(ctx context.Context) {
 					}
 				}
 
-				// Process OUT packet
+				// ====== Process OUT packet ======
 				if ip4.SrcIP.Equal(cap.LocalIP) && !ip4.DstIP.Equal(cap.LocalIP) {
 					var port uint16
 					if tcp != nil && len(tcp.Payload) > 0 {
-						port = uint16(tcp.SrcPort)
-						if cap.InPortRange(port) {
+						// port = uint16(tcp.SrcPort)
+						port = uint16(tcp.DstPort)
+						// if cap.InPortRange(port) {
+						if !cap.InPortRange(port) {
 							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), tcp.DstPort)
 							if !cap.Out.Has(remote) {
 								cap.Out.Add(remote)
 							}
 						}
 					} else if udp != nil && len(udp.Payload) > 0 {
-						port = uint16(udp.SrcPort)
-						if cap.InPortRange(port) {
+						// port = uint16(udp.SrcPort)
+						port = uint16(udp.DstPort)
+						// if cap.InPortRange(port) {
+						if !cap.InPortRange(port) {
 							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), udp.DstPort)
 							if !cap.Out.Has(remote) {
 								cap.Out.Add(remote)
