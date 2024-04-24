@@ -19,17 +19,18 @@ import (
 	"github.com/pterm/pterm"
 )
 
-type Capture struct {
-	Mu       sync.Mutex
-	MinPort  uint16
-	MaxPort  uint16
-	Ex       utils.Set
-	LocalIP  net.IP
-	NIC      string
-	Filter   string
-	In       InMap
-	Out      utils.Set
-	ExPublic bool
+type Captor struct {
+	Mu        sync.Mutex
+	MinPort   uint16
+	MaxPort   uint16
+	Ex        utils.Set
+	LocalIP   net.IP
+	NIC       string
+	Filter    string
+	In        InMap
+	Out       utils.Set
+	ExPublic  bool
+	Direction string
 }
 
 type PacketData struct {
@@ -51,7 +52,7 @@ func colorPort(text string) string {
 	}
 }
 
-func (cap *Capture) InPortRange(port uint16) bool {
+func (cap *Captor) InPortRange(port uint16) bool {
 	portStr := strconv.FormatUint(uint64(port), 10)
 	if cap.Ex.Has(portStr) {
 		return false
@@ -62,7 +63,7 @@ func (cap *Capture) InPortRange(port uint16) bool {
 	return true
 }
 
-func (cap *Capture) FormatInText() string {
+func (cap *Captor) FormatInText() string {
 	text := []string{}
 
 	cap.Mu.Lock()
@@ -77,7 +78,7 @@ func (cap *Capture) FormatInText() string {
 	return strings.Join(text, "\n")
 }
 
-func (cap *Capture) FormatOutText() string {
+func (cap *Captor) FormatOutText() string {
 	text := []string{}
 	cap.Mu.Lock()
 	defer cap.Mu.Unlock()
@@ -87,7 +88,7 @@ func (cap *Capture) FormatOutText() string {
 	return strings.Join(text, "\n")
 }
 
-func (cap *Capture) DisplayInfo(ctx context.Context, printer *pterm.AreaPrinter) {
+func (cap *Captor) DisplayInfo(ctx context.Context, printer *pterm.AreaPrinter) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -103,7 +104,7 @@ func (cap *Capture) DisplayInfo(ctx context.Context, printer *pterm.AreaPrinter)
 	}
 }
 
-func (cap *Capture) SaveToFile(name string) {
+func (cap *Captor) SaveToFile(name string) {
 	filename := fmt.Sprintf("%s.txt", name)
 	fmt.Printf("Saving to file: %s\n", filename)
 
@@ -138,7 +139,7 @@ func (cap *Capture) SaveToFile(name string) {
 	}
 }
 
-func (cap *Capture) Sum() string {
+func (cap *Captor) Sum() string {
 	count := 0
 	for _, v := range cap.In {
 		count += v.Size()
@@ -149,7 +150,7 @@ func (cap *Capture) Sum() string {
 	return in + ", " + out
 }
 
-func (cap *Capture) ParsePacket(ctx context.Context) {
+func (cap *Captor) ParsePacket(ctx context.Context) {
 
 	var handle *pcap.Handle
 	var err error
@@ -160,7 +161,7 @@ func (cap *Capture) ParsePacket(ctx context.Context) {
 		os.Exit(2)
 	}
 
-	if err := handle.SetBPFFilter(cap.Filter); err != nil { // optional
+	if err := handle.SetBPFFilter(cap.Filter); err != nil {
 		panic(err)
 	}
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
@@ -202,61 +203,65 @@ func (cap *Capture) ParsePacket(ctx context.Context) {
 					continue
 				}
 
-				// ====== Process IN packet ======
-				if ip4.DstIP.Equal(cap.LocalIP) {
-					var port uint16
-					if tcp != nil && len(tcp.Payload) > 0 {
-						port = uint16(tcp.DstPort)
-					} else if udp != nil && len(udp.Payload) > 0 {
-						port = uint16(udp.DstPort)
-					} else {
-						continue
-					}
-
-					if !cap.InPortRange(port) {
-
-						var addrPort netip.AddrPort
-						addr := netip.AddrFrom4([4]byte(ip4.DstIP))
-						if tcp != nil {
-							addrPort = netip.AddrPortFrom(addr, uint16(tcp.DstPort))
+				if cap.Direction == "all" || cap.Direction == "in" {
+					// ====== Process IN packet ======
+					if ip4.DstIP.Equal(cap.LocalIP) {
+						var port uint16
+						if tcp != nil && len(tcp.Payload) > 0 {
+							port = uint16(tcp.DstPort)
+						} else if udp != nil && len(udp.Payload) > 0 {
+							port = uint16(udp.DstPort)
 						} else {
-							addrPort = netip.AddrPortFrom(addr, uint16(udp.DstPort))
+							continue
 						}
 
-						if val, ok := cap.In[addrPort]; ok {
-							ipStr := ip4.SrcIP.String()
-							if !val.Has(ipStr) {
-								val.Add(ipStr)
+						if !cap.InPortRange(port) {
+
+							var addrPort netip.AddrPort
+							addr := netip.AddrFrom4([4]byte(ip4.DstIP))
+							if tcp != nil {
+								addrPort = netip.AddrPortFrom(addr, uint16(tcp.DstPort))
+							} else {
+								addrPort = netip.AddrPortFrom(addr, uint16(udp.DstPort))
 							}
-						} else {
-							set := utils.NewSet()
-							set.Add(ip4.SrcIP.String())
-							cap.In[addrPort] = *set
+
+							if val, ok := cap.In[addrPort]; ok {
+								ipStr := ip4.SrcIP.String()
+								if !val.Has(ipStr) {
+									val.Add(ipStr)
+								}
+							} else {
+								set := utils.NewSet()
+								set.Add(ip4.SrcIP.String())
+								cap.In[addrPort] = *set
+							}
 						}
 					}
 				}
 
-				// ====== Process OUT packet ======
-				if ip4.SrcIP.Equal(cap.LocalIP) && !ip4.DstIP.Equal(cap.LocalIP) {
-					var port uint16
-					if tcp != nil && len(tcp.Payload) > 0 {
-						// port = uint16(tcp.SrcPort)
-						port = uint16(tcp.DstPort)
-						// if cap.InPortRange(port) {
-						if !cap.InPortRange(port) {
-							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), tcp.DstPort)
-							if !cap.Out.Has(remote) {
-								cap.Out.Add(remote)
+				if cap.Direction == "all" || cap.Direction == "out" {
+					// ====== Process OUT packet ======
+					if ip4.SrcIP.Equal(cap.LocalIP) && !ip4.DstIP.Equal(cap.LocalIP) {
+						var port uint16
+						if tcp != nil && len(tcp.Payload) > 0 {
+							// port = uint16(tcp.SrcPort)
+							port = uint16(tcp.DstPort)
+							// if cap.InPortRange(port) {
+							if !cap.InPortRange(port) {
+								remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), tcp.DstPort)
+								if !cap.Out.Has(remote) {
+									cap.Out.Add(remote)
+								}
 							}
-						}
-					} else if udp != nil && len(udp.Payload) > 0 {
-						// port = uint16(udp.SrcPort)
-						port = uint16(udp.DstPort)
-						// if cap.InPortRange(port) {
-						if !cap.InPortRange(port) {
-							remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), udp.DstPort)
-							if !cap.Out.Has(remote) {
-								cap.Out.Add(remote)
+						} else if udp != nil && len(udp.Payload) > 0 {
+							// port = uint16(udp.SrcPort)
+							port = uint16(udp.DstPort)
+							// if cap.InPortRange(port) {
+							if !cap.InPortRange(port) {
+								remote := fmt.Sprintf("%s:%d", ip4.DstIP.String(), udp.DstPort)
+								if !cap.Out.Has(remote) {
+									cap.Out.Add(remote)
+								}
 							}
 						}
 					}

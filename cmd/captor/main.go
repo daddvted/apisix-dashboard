@@ -16,12 +16,13 @@ import (
 )
 
 type EnvParam struct {
-	Filter   string   `env:"NW2_FILTER" envDefault:"tcp and not port 22 or udp"`
-	HostIP   string   `env:"NW2_HOST_IP" envDefault:"127.0.0.1"`
-	NIC      string   `env:"NW2_NIC" envDefault:"eth0"`
-	MinPort  uint16   `env:"NW2_MIN_PORT" envDefault:"10000"`
-	ExPort   []string `env:"NW2_EX_PORT" envSeparator:","`
-	ExPublic bool     `env:"NW2_EX_PUBLIC" envDefault:"true"`
+	Filter    string   `env:"NW2_FILTER" envDefault:"tcp and not port 22 or udp"`
+	HostIP    string   `env:"NW2_HOST_IP" envDefault:"127.0.0.1"`
+	NIC       string   `env:"NW2_NIC" envDefault:"eth0"`
+	MinPort   uint16   `env:"NW2_MIN_PORT" envDefault:"10000"`
+	ExPort    []string `env:"NW2_EX_PORT" envSeparator:","`
+	ExPublic  bool     `env:"NW2_EX_PUBLIC" envDefault:"true"`
+	Direction string   `env:"NW2_DIRECTION" envDefault:"in"`
 }
 
 var envParam EnvParam
@@ -40,10 +41,12 @@ func printCurrentEnv() {
 	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_MIN_PORT(最小随机端口): %d", envParam.MinPort)))
 	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_EX_PORT(如果服务端口大于最小随机端口，将服务端口添加到该变量中，多个端口逗号分隔): %s", strings.Join(envParam.ExPort, ","))))
 	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_EX_PUBLIC(是否排除公网IP): %t", envParam.ExPublic)))
+	fmt.Println(pterm.Gray(fmt.Sprintf("NW2_DIRECTION(抓取数据流方向<all | in | out>): %s", envParam.Direction)))
 }
 
 func main() {
 	pterm.EnableDebugMessages()
+	// Print version
 	fmt.Println(pterm.Yellow(utils.Version))
 	pterm.Info.Println("Ctrl+C to stop")
 
@@ -62,21 +65,19 @@ func main() {
 		}
 	}
 
-	capture := Capture{
-		Mu:       sync.Mutex{},
-		MinPort:  envParam.MinPort,
-		MaxPort:  65535,
-		Ex:       *exPort,
-		LocalIP:  localIP,
-		NIC:      envParam.NIC,
-		Filter:   envParam.Filter,
-		In:       InMap{},
-		Out:      *utils.NewSet(),
-		ExPublic: envParam.ExPublic,
+	captor := Captor{
+		Mu:        sync.Mutex{},
+		MinPort:   envParam.MinPort,
+		MaxPort:   65535,
+		Ex:        *exPort,
+		LocalIP:   localIP,
+		NIC:       envParam.NIC,
+		Filter:    envParam.Filter,
+		In:        InMap{},
+		Out:       *utils.NewSet(),
+		ExPublic:  envParam.ExPublic,
+		Direction: envParam.Direction,
 	}
-
-	// In = make(map[netip.AddrPort]utils.Set)
-	// Out = *utils.NewSet()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM)
@@ -92,16 +93,16 @@ func main() {
 	}()
 
 	wg.Add(1)
-	// goroutine to parse packet
+	// Goroutine to parse packet
 	go func() {
-		capture.ParsePacket(ctx)
+		captor.ParsePacket(ctx)
 		wg.Done()
 	}()
 
 	// Goroutine to display packet info
 	wg.Add(1)
 	go func() {
-		capture.DisplayInfo(ctx, area)
+		captor.DisplayInfo(ctx, area)
 		wg.Done()
 	}()
 
@@ -109,7 +110,7 @@ func main() {
 	fmt.Println("Exited...")
 	area.Stop()
 
-	capture.SaveToFile(envParam.HostIP)
+	captor.SaveToFile(envParam.HostIP)
 
 	os.Exit(0)
 }
