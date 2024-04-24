@@ -64,7 +64,7 @@ func generateCenterPointByGroupID(gid int, distance float64) (float64, float64) 
 	angle := float64(gid%8) * 0.25
 	circle := math.Floor(float64(gid) / float64(8))
 
-	fmt.Println(gid, angle, circle+1)
+	// fmt.Println(gid, angle, circle+1)
 
 	centerX := float64(circle+1) * distance * math.Cos(angle*math.Pi)
 	centerY := float64(circle+1) * distance * math.Sin(angle*math.Pi)

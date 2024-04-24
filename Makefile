@@ -29,7 +29,10 @@ captor:
 analyzer: 
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(LDFLAGS) -o analyzer cmd/analyzer/main.go
 
-all: captor analyzer
+analyzer-win:
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build $(LDFLAGS) -o analyzer.exe cmd/analyzer/main.go
+
+all: captor analyzer analyzer-win
 
 clean:
-	rm -f captor analyzer
+	rm -f captor analyzer analyzer.exe

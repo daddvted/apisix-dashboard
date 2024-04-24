@@ -79,7 +79,7 @@ func queryNetboxByIP(ip string) (string, int) {
 	}
 
 	if result.Count != 0 {
-		fmt.Println("found device")
+		// fmt.Println("found device")
 		return "device", result.Results[0].Id
 	}
 
@@ -89,7 +89,7 @@ func queryNetboxByIP(ip string) (string, int) {
 		panic(err)
 	}
 	if result.Count != 0 {
-		fmt.Println("found vm")
+		// fmt.Println("found vm")
 		return "vm", result.Results[0].Id
 	}
 

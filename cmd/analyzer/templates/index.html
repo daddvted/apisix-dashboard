@@ -14,6 +14,9 @@
       body {
         padding-left: 10px;
       }
+      a {
+        font-size: 12px;
+      }
       i.serif{ text-transform:lowercase; color:#1abc9c; }
       #serviceMap {
         margin: 0px;
@@ -26,7 +29,10 @@
   </head>
 
   <body>
+    <p>
     <h1>生产环境服务关系</h1>
+      <span><a href="#">{{.version}}</a></span>
+    </p>
     <p><strong id="info"></strong></p>
     <div id="serviceMap"></div>
     <script type="text/javascript" src="static/js/main.js"></script>
