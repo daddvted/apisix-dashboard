@@ -155,8 +155,6 @@ func (a *AnalyzerSrv) ServiceHandler(c *gin.Context) {
 	ip := c.Query("ip")
 	port := c.Query("port")
 
-	fmt.Printf("ip: %s, port: %s\n", ip, port)
-	fmt.Println(port == "")
 	if port == "" {
 		_, result := a.queryNetboxByIP(ip)
 		c.JSON(http.StatusOK, result)
