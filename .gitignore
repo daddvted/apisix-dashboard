@@ -1,6 +1,9 @@
 .vscode
 *.tar.gz
 *.txt
+*.exe
 libpcap-1.5.3
 cmd/analyzer/tmp
 cmd/captor/tmp
+/captor
+/analyzer

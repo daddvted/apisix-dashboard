@@ -11,14 +11,24 @@ import (
 	"strings"
 
 	"github.com/daddvted/netswatch2/utils"
+	"github.com/gin-gonic/gin"
 )
+
+type Config struct {
+	Token string `env:"NW2_NETBOX_TOKEN" envDefault:"13151e9e88608aa76ca937d1d6c9fcb7793eecb6"`
+	Url   string `env:"NW2_NETBOX_URL" envDefault:"http://192.168.6.140:31868"`
+}
+
+type AnalyzerSrv struct {
+	Conf   Config
+	Router *gin.Engine
+}
 
 var groupMap, nodeMap map[string]int
 
 func init() {
 	groupMap = make(map[string]int)
 	nodeMap = make(map[string]int)
-
 }
 
 type Node struct {

@@ -138,9 +138,9 @@ function neighbourhoodHighlight(params) {
 
 function showInfo(params) {
   let nodeID = params.node - 1;
-  // console.log(nodes[nodeID]);
-  console.log(params.node);
-  console.log(nodes[params.node-1 ]);
+
+  console.log(nodes[nodeID]);
+
   let label = nodes[nodeID].label;
   if(label && label.includes(":")){
     let arr = label.split(":");

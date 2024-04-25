@@ -37,17 +37,15 @@ type netboxServiceResult struct {
 	Results []netboxService `json:"results"`
 }
 
-func invokeNetboxAPI(url string) []byte {
+func (a *AnalyzerSrv) invokeNetboxAPI(url string) []byte {
 	data := []byte{}
-
-	token := "13151e9e88608aa76ca937d1d6c9fcb7793eecb6"
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return data
 	}
 
-	request.Header.Set("Authorization", "Token "+token)
+	request.Header.Set("Authorization", "Token "+a.Conf.Token)
 
 	client := &http.Client{}
 	response, err := client.Do(request)
@@ -65,14 +63,13 @@ func invokeNetboxAPI(url string) []byte {
 	return body
 }
 
-func queryNetboxByIP(ip string) (string, int) {
-	api := "http://192.168.6.140:31868"
+func (a *AnalyzerSrv) queryNetboxByIP(ip string) (string, int) {
 	vm_api := "/api/virtualization/virtual-machines/?q="
 	device_api := "/api/dcim/devices/?q="
 
 	result := netboxResult{}
-	url := fmt.Sprintf("%s%s%s", api, device_api, ip)
-	resp := invokeNetboxAPI(url)
+	url := fmt.Sprintf("%s%s%s", a.Conf.Url, device_api, ip)
+	resp := a.invokeNetboxAPI(url)
 
 	if err := json.Unmarshal(resp, &result); err != nil {
 		panic(err)
@@ -83,8 +80,8 @@ func queryNetboxByIP(ip string) (string, int) {
 		return "device", result.Results[0].Id
 	}
 
-	url = fmt.Sprintf("%s%s%s", api, vm_api, ip)
-	resp = invokeNetboxAPI(url)
+	url = fmt.Sprintf("%s%s%s", a.Conf.Url, vm_api, ip)
+	resp = a.invokeNetboxAPI(url)
 	if err := json.Unmarshal(resp, &result); err != nil {
 		panic(err)
 	}
@@ -96,14 +93,13 @@ func queryNetboxByIP(ip string) (string, int) {
 	return "", 0
 }
 
-func queryNetboxService(ip, port string) netboxServiceResult {
+func (a *AnalyzerSrv) queryNetboxService(ip, port string) netboxServiceResult {
 	var svcAPI string
 	var svcResult netboxServiceResult
-	api := "http://192.168.6.140:31868"
-	item, id := queryNetboxByIP(ip)
+	item, id := a.queryNetboxByIP(ip)
 	if id != 0 {
 		// "/api/ipam/services/?port=10011&virtual_machine_id=5"
-		url := fmt.Sprintf("%s/api/ipam/services/?port=%s", api, port)
+		url := fmt.Sprintf("%s/api/ipam/services/?port=%s", a.Conf.Url, port)
 
 		if item == "device" {
 			svcAPI = fmt.Sprintf("%s&device_id=%d", url, id)
@@ -111,7 +107,7 @@ func queryNetboxService(ip, port string) netboxServiceResult {
 			svcAPI = fmt.Sprintf("%s&virtual_machine_id=%d", url, id)
 		}
 
-		svc := invokeNetboxAPI(svcAPI)
+		svc := a.invokeNetboxAPI(svcAPI)
 
 		if err := json.Unmarshal(svc, &svcResult); err != nil {
 			panic(err)
@@ -121,7 +117,7 @@ func queryNetboxService(ip, port string) netboxServiceResult {
 	return svcResult
 }
 
-func DataHandler(c *gin.Context) {
+func (a *AnalyzerSrv) DataHandler(c *gin.Context) {
 	svcMap := GenerateServiceMap("data")
 	nodes, edges := GenerateNodeAndEdge(&svcMap)
 
@@ -137,10 +133,10 @@ func DataHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, json)
 }
 
-func ServiceHandler(c *gin.Context) {
+func (a *AnalyzerSrv) ServiceHandler(c *gin.Context) {
 
 	ip := c.Query("ip")
 	port := c.Query("port")
 
-	c.JSON(http.StatusOK, queryNetboxService(ip, port))
+	c.JSON(http.StatusOK, a.queryNetboxService(ip, port))
 }

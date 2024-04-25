@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
@@ -12,12 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type EnvParam struct {
-	Token string `env:"NW2_NETBOX_TOKEN" envDefault:"13151e9e88608aa76ca937d1d6c9fcb7793eecb6"`
-	Url   string `env:"NW2_NETBOX_URL" envDefault:"http://192.168.6.140:31868"`
-}
-
-var envParam EnvParam
+var envParam web.Config
 
 //go:embed static/* templates/*
 var f embed.FS
@@ -28,24 +24,35 @@ func init() {
 	}
 }
 
+func printCurrentEnv() {
+	fmt.Println("当前配置环境变量:")
+	fmt.Printf("NW2_NETBOX_URL(Netbox地址): %s\n", envParam.Url)
+	fmt.Printf("NW2_NETBOX_TOKEN(Netbox API Token): %s\n", envParam.Token)
+}
+
 func main() {
-	// Run HTTP Server
-	r := gin.Default()
+	printCurrentEnv()
+
+	httpServer := web.AnalyzerSrv{
+		Conf:   envParam,
+		Router: gin.Default(),
+	}
+
 	tpl := template.Must(template.New("").ParseFS(f, "templates/*.html"))
-	r.SetHTMLTemplate(tpl)
+	httpServer.Router.SetHTMLTemplate(tpl)
 
 	// tplFS, _ := fs.Sub(f, "templates")
 	staticFS, _ := fs.Sub(f, "static")
-	r.StaticFS("/static", http.FS(staticFS))
+	httpServer.Router.StaticFS("/static", http.FS(staticFS))
 
-	r.GET("/", func(c *gin.Context) {
+	httpServer.Router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title":   "Service Map",
 			"version": utils.Version,
 		})
 	})
 
-	r.GET("/data", web.DataHandler)
-	r.GET("/service", web.ServiceHandler)
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	httpServer.Router.GET("/data", httpServer.DataHandler)
+	httpServer.Router.GET("/service", httpServer.ServiceHandler)
+	httpServer.Router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
