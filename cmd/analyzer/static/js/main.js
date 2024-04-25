@@ -142,7 +142,8 @@ function showInfo(params) {
   console.log(nodes[nodeID]);
 
   let label = nodes[nodeID].label;
-  if(label && label.includes(":")){
+  // if(label && label.includes(":")){
+  if(label){
     let arr = label.split(":");
     let ip = arr[0];
     let port = arr[1];
@@ -156,11 +157,21 @@ function showInfo(params) {
       dataType: 'json',
       async: false,
       success: function(resp) {
-        console.log(resp);
+        console.log("RESP:", resp);
         if (resp.count > 0) {
-          let svc = resp.results[0];
-          console.log(svc);
-          $('#info').html(`名称：<i class="serif">${svc.name}</i>, 子系统：<i class="serif">${svc.custom_fields.subsystem}</i>`);
+          let item = resp.results[0];
+          if(item.custom_fields) {
+            $('#info').html(`名称：<i class="serif">${item.name}</i>, 子系统：<i class="serif">${item.custom_fields.subsystem}</i>`);
+          } else {
+            let arr = [];
+            if (item.name) {
+              arr.push(item.name)
+            }
+            if (item.description) {
+              arr.push(item.description)
+            }
+            $('#info').html(arr.join(" "))
+          }
         } else {
           $('#info').html(`<mark>未查询到${label}的信息</mark>`);
         }
@@ -169,13 +180,8 @@ function showInfo(params) {
         console.error('There was a problem with the request:', error);
       }
     });
-  } else {
-    // $('#info').text(`${label} 不包含服务端口`)
-    $('#info').html(`<mark>${label} 不包含服务端口</mark>`)
-  }
-
+  } 
   // $('#info').text(`searching service: ${label}`);
-
 }
 
 function zoomHandler() {

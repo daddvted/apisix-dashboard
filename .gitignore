@@ -4,6 +4,8 @@
 *.exe
 libpcap-1.5.3
 cmd/analyzer/tmp
+cmd/analyzer/data
 cmd/captor/tmp
 /captor
 /analyzer
+servicemap
