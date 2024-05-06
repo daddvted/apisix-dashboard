@@ -44,6 +44,7 @@ func main() {
 	// tplFS, _ := fs.Sub(f, "templates")
 	staticFS, _ := fs.Sub(f, "static")
 	httpServer.Router.StaticFS("/static", http.FS(staticFS))
+	httpServer.Router.StaticFileFS("/favicon.ico", "./favicon.ico", http.FS(staticFS))
 
 	httpServer.Router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{

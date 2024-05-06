@@ -164,7 +164,6 @@ function showInfo(params) {
             let arr = [];
             delete item["id"]
             for (var k in item) {
-              console.log(k, item[k])
               arr.push(item[k])
             }
 
