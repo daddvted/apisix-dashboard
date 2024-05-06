@@ -139,8 +139,6 @@ function neighbourhoodHighlight(params) {
 function showInfo(params) {
   let nodeID = params.node - 1;
 
-  console.log(nodes[nodeID]);
-
   let label = nodes[nodeID].label;
   // if(label && label.includes(":")){
   if(label){
@@ -164,12 +162,12 @@ function showInfo(params) {
             $('#info').html(`名称：<i class="serif">${item.name}</i>, 子系统：<i class="serif">${item.custom_fields.subsystem}</i>`);
           } else {
             let arr = [];
-            if (item.name) {
-              arr.push(item.name)
+            delete item["id"]
+            for (var k in item) {
+              console.log(k, item[k])
+              arr.push(item[k])
             }
-            if (item.description) {
-              arr.push(item.description)
-            }
+
             $('#info').html(arr.join(" "))
           }
         } else {
