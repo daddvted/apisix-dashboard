@@ -14,28 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Form } from 'antd';
+import { Button, Result } from 'antd';
 import React from 'react';
+import { history, useIntl } from 'umi';
 
-import { FORM_ITEM_LAYOUT } from '@/pages/Route/constants';
+type Props = {
+  createNew: () => void;
+};
 
-import styles from '../../Create.less';
-import MatchingRulesView from './MatchingRulesView';
-import MetaView from './MetaView';
-import ProxyRewrite from './ProxyRewrite';
-import RequestConfigView from './RequestConfigView';
-
-const Step1: React.FC<StreamModule.Step1PassProps> = (props) => {
+const ResultView: React.FC<Props> = (props) => {
+  const { formatMessage } = useIntl();
   return (
-    <>
-      <Form {...FORM_ITEM_LAYOUT} form={props.form} layout="horizontal" className={styles.stepForm}>
-        <MetaView {...props} />
-        <RequestConfigView {...props} />
-        <ProxyRewrite {...props} />
-      </Form>
-      <MatchingRulesView {...props} />
-    </>
+    <Result
+      status="success"
+      title={`${formatMessage({ id: 'component.global.submit' })} ${formatMessage({
+        id: 'component.status.success',
+      })}`}
+      extra={[
+        <Button type="primary" key="goto-list" onClick={() => history.replace('/routes/list')}>
+          {formatMessage({ id: 'page.route.button.returnList' })}
+        </Button>,
+        <Button key="create-new" onClick={() => props.createNew()}>
+          {`${formatMessage({ id: 'component.global.create' })} ${formatMessage({
+            id: 'menu.routes',
+          })}`}
+        </Button>,
+      ]}
+    />
   );
 };
 
-export default Step1;
+export default ResultView;

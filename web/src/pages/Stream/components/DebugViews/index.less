@@ -14,10 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+@import '~antd/es/style/themes/default.less';
 
-import RequestRewriteView from './RequestRewriteView';
+.routeDebugDraw {
+  :global {
+    .ant-card-body {
+      padding: 0;
+    }
 
-const Step2: React.FC<StreamModule.Step2PassProps> = (props) => <RequestRewriteView {...props} />;
+    .ant-drawer-body {
+      padding: 16px;
+    }
 
-export default Step2;
+    .ant-form-item {
+      margin-bottom: 8px;
+    }
+  }
+
+  .authForm {
+    display: flex;
+    margin: 16px;
+
+    :global {
+      .ant-radio-wrapper {
+        display: block;
+        height: 30px;
+        line-height: 30px;
+      }
+
+      .ant-radio-group {
+        margin-right: 16px;
+        border-right: 1px solid #e0e0e0;
+      }
+    }
+  }
+}

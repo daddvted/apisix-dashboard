@@ -18,7 +18,7 @@ import { cloneDeep, isEmpty, omit, pick, unset } from 'lodash';
 
 import { convertToFormData } from '@/components/Upstream/service';
 import { transformLabelValueToKeyValue } from '@/helpers';
-import { HOST_REWRITE_TYPE, SCHEME_REWRITE, URI_REWRITE_TYPE } from '@/pages/Route/constants';
+import { HOST_REWRITE_TYPE, SCHEME_REWRITE, URI_REWRITE_TYPE } from '@/pages/Stream/constants';
 
 export const transformProxyRewrite2Plugin = (
   data: StreamModule.ProxyRewrite,
@@ -115,7 +115,7 @@ const transformProxyRewrite2Formdata = (pluginsData: any) => {
   };
 };
 
-// Transform Route data then sent to API
+// Transform Stream data then sent to API
 export const transformStepData = ({
   form1Data,
   form2Data,

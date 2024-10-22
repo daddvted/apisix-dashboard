@@ -29,7 +29,7 @@ type Props = {
   fetchLabelList: any;
   disabled: boolean;
   onClose: () => void;
-} & Pick<RouteModule.Step1PassProps, 'onChange'>;
+} & Pick<StreamModule.Step1PassProps, 'onChange'>;
 
 const LabelList = (disabled: boolean, labelList: LabelList, filterList: string[] = []) => {
   const { formatMessage } = useIntl();

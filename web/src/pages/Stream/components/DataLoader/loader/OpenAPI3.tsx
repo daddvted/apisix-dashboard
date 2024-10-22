@@ -14,10 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import { Col, Form, Row, Switch } from 'antd';
+import React, { memo } from 'react';
 
-import RequestRewriteView from './RequestRewriteView';
+import { useIntl } from '@@/plugin-locale/localeExports';
 
-const Step2: React.FC<StreamModule.Step2PassProps> = (props) => <RequestRewriteView {...props} />;
+const DataLoaderOpenAPI3: React.FC = () => {
+  const { formatMessage } = useIntl();
 
-export default Step2;
+  return (
+    <Row gutter={16}>
+      <Col span={12}>
+        <Form.Item
+          name="merge_method"
+          label={formatMessage({ id: 'page.route.data_loader.labels.openapi3_merge_method' })}
+          tooltip={formatMessage({ id: 'page.route.data_loader.tips.openapi3_merge_method' })}
+          initialValue={true}
+        >
+          <Switch defaultChecked />
+        </Form.Item>
+      </Col>
+    </Row>
+  );
+};
+
+export default memo(DataLoaderOpenAPI3);

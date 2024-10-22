@@ -14,10 +14,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
-
-import RequestRewriteView from './RequestRewriteView';
-
-const Step2: React.FC<StreamModule.Step2PassProps> = (props) => <RequestRewriteView {...props} />;
-
-export default Step2;
+export { default } from './CreateStep4';
