@@ -36,9 +36,8 @@ conf:
                           # It also support CIDR like 192.168.1.0/24 and 2001:0db8::/32
   etcd:
     endpoints:            # supports defining multiple etcd host addresses for an etcd cluster
-      - 192.168.6.140:30376
-      - 192.168.6.143:30376
-      - 192.168.6.144:30376
+      #- 192.168.6.140:30376
+      - 192.168.2.91:2379
                           # yamllint disable rule:comments-indentation
                           # etcd basic auth info
     username: "root"    # ignore etcd username if not enable etcd auth
