@@ -61,6 +61,7 @@ export default {
   'menu.editor.mind': '脑图编辑器',
   'menu.editor.koni': '拓扑编辑器',
   'menu.routes': '路由',
+  'menu.stream': '数据流',
   'menu.pluginTemplate': '插件模板',
   'menu.ssl': '证书',
   'menu.upstream': '上游',

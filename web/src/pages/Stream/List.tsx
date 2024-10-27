@@ -1,3 +1,4 @@
+/*eslint-disable*/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -25,39 +26,31 @@ import {
   Menu,
   Modal,
   notification,
-  Popconfirm,
   Select,
   Space,
   Table,
   Tag,
-  Tooltip,
 } from 'antd';
 import { omit } from 'lodash';
 import type { ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { history, useIntl } from 'umi';
 
 import { RawDataEditor } from '@/components/RawDataEditor';
 import { DELETE_FIELDS } from '@/constants';
 import { timestampToLocaleString } from '@/helpers';
 import usePagination from '@/hooks/usePagination';
-import DataLoaderImport from '@/pages/Route/components/DataLoader/Import';
+import DataLoaderImport from '@/pages/Stream/components/DataLoader/Import';
 
 import { DebugDrawView } from './components/DebugViews';
-import { create, fetchLabelList, fetchList, remove, update, updateRouteStatus } from './service';
+import { create, fetchList, remove, update, updateRouteStatus } from './service';
 
-const { OptGroup, Option } = Select;
+//const { OptGroup, Option } = Select;
 
 const Page: React.FC = () => {
   const ref = useRef<ActionType>();
   const { formatMessage } = useIntl();
 
-  enum RouteStatus {
-    Offline = 0,
-    Publish,
-  }
-
-  const [labelList, setLabelList] = useState<LabelList>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [showImportDrawer, setShowImportDrawer] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -66,12 +59,10 @@ const Page: React.FC = () => {
   const [editorMode, setEditorMode] = useState<'create' | 'update'>('create');
   const { paginationConfig, savePageList, checkPageList } = usePagination();
   const [debugDrawVisible, setDebugDrawVisible] = useState(false);
-  const [routeId, setRouteId] = useState<string>('');
+  //const [routeId, setRouteId] = useState<string>('');
+  const [setRouteId] = useState<string>('');
 
-  useEffect(() => {
-    fetchLabelList().then(setLabelList);
-  }, []);
-
+  // REMOVE LATER
   const rowSelection: any = {
     selectedRowKeys,
     onChange: (currentSelectKeys: string[]) => {
@@ -96,8 +87,8 @@ const Page: React.FC = () => {
       updateRouteStatus(rid, status)
         .then(() => {
           const actionName = status
-            ? formatMessage({ id: 'page.route.publish' })
-            : formatMessage({ id: 'page.route.offline' });
+            ? formatMessage({ id: 'page.stream.publish' })
+            : formatMessage({ id: 'page.stream.offline' });
           handleTableActionSuccessResponse(
             `${actionName} ${formatMessage({
               id: 'menu.routes',
@@ -113,7 +104,7 @@ const Page: React.FC = () => {
   const ListToolbar = () => {
     const tools = [
       {
-        name: formatMessage({ id: 'page.route.pluginTemplateConfig' }),
+        name: formatMessage({ id: 'page.stream.pluginTemplateConfig' }),
         icon: <PlusOutlined />,
         onClick: () => {
           history.push('/plugin-template/list');
@@ -129,7 +120,7 @@ const Page: React.FC = () => {
         },
       },
       {
-        name: formatMessage({ id: 'page.route.data_loader.import' }),
+        name: formatMessage({ id: 'page.stream.data_loader.import' }),
         icon: <ImportOutlined />,
         onClick: () => {
           setShowImportDrawer(true);
@@ -175,7 +166,7 @@ const Page: React.FC = () => {
       {
         name: formatMessage({ id: 'component.global.duplicate' }),
         onClick: () => {
-          history.push(`/routes/${record.id}/duplicate`);
+          history.push(`/streams/${record.id}/duplicate`);
         },
       },
       {
@@ -234,17 +225,23 @@ const Page: React.FC = () => {
   };
   const columns: ProColumns<StreamModule.ResponseBody>[] = [
     {
-      title: formatMessage({ id: 'component.global.name' }),
-      dataIndex: 'name',
-      width: 150,
-    },
-    {
       title: formatMessage({ id: 'component.global.id' }),
       dataIndex: 'id',
       width: 200,
     },
     {
-      title: formatMessage({ id: 'page.route.host' }),
+      title: formatMessage({ id: 'page.stream.server_addr' }),
+      dataIndex: 'server_addr',
+      width: 150,
+    },
+    {
+      title: formatMessage({ id: 'page.stream.server_port' }),
+      dataIndex: 'server_port',
+      width: 150,
+    },
+    /*
+    {
+      title: formatMessage({ id: 'page.stream.host' }),
       dataIndex: 'host',
       width: 224,
       render: (_, record) => {
@@ -260,7 +257,7 @@ const Page: React.FC = () => {
       },
     },
     {
-      title: formatMessage({ id: 'page.route.path' }),
+      title: formatMessage({ id: 'page.stream.path' }),
       dataIndex: 'uri',
       width: 224,
       render: (_, record) => {
@@ -372,15 +369,15 @@ const Page: React.FC = () => {
       },
     },
     {
-      title: formatMessage({ id: 'page.route.status' }),
+      title: formatMessage({ id: 'page.stream.status' }),
       dataIndex: 'status',
       width: 100,
       render: (_, record) => (
         <>
           {record.status ? (
-            <Tag color="green">{formatMessage({ id: 'page.route.published' })}</Tag>
+            <Tag color="green">{formatMessage({ id: 'page.stream.published' })}</Tag>
           ) : (
-            <Tag color="red">{formatMessage({ id: 'page.route.unpublished' })}</Tag>
+            <Tag color="red">{formatMessage({ id: 'page.stream.unpublished' })}</Tag>
           )}
         </>
       ),
@@ -392,21 +389,22 @@ const Page: React.FC = () => {
         return (
           <Select
             style={{ width: '100%' }}
-            placeholder={`${formatMessage({ id: 'page.route.unpublished' })}/${formatMessage({
-              id: 'page.route.published',
+            placeholder={`${formatMessage({ id: 'page.stream.unpublished' })}/${formatMessage({
+              id: 'page.stream.published',
             })}`}
             allowClear
           >
             <Option key={RouteStatus.Offline} value={RouteStatus.Offline}>
-              {formatMessage({ id: 'page.route.unpublished' })}
+              {formatMessage({ id: 'page.stream.unpublished' })}
             </Option>
             <Option key={RouteStatus.Publish} value={RouteStatus.Publish}>
-              {formatMessage({ id: 'page.route.published' })}
+              {formatMessage({ id: 'page.stream.published' })}
             </Option>
           </Select>
         );
       },
     },
+    */
     {
       title: formatMessage({ id: 'component.global.updateTime' }),
       dataIndex: 'update_time',
@@ -423,40 +421,7 @@ const Page: React.FC = () => {
       render: (_, record) => (
         <>
           <Space align="baseline">
-            {!record.status ? (
-              <Button
-                type="primary"
-                onClick={() => {
-                  handlePublishOffline(record.id, RouteStatus.Publish);
-                }}
-                loading={record.id === routeId}
-              >
-                {formatMessage({ id: 'page.route.publish' })}
-              </Button>
-            ) : null}
-            {record.status ? (
-              <Popconfirm
-                title={formatMessage({ id: 'page.route.popconfirm.title.offline' })}
-                onConfirm={() => {
-                  handlePublishOffline(record.id, RouteStatus.Offline);
-                }}
-                okButtonProps={{
-                  danger: true,
-                }}
-                okText={formatMessage({ id: 'component.global.confirm' })}
-                cancelText={formatMessage({ id: 'component.global.cancel' })}
-              >
-                <Button
-                  type="primary"
-                  danger
-                  disabled={Boolean(!record.status)}
-                  loading={record.id === routeId}
-                >
-                  {formatMessage({ id: 'page.route.offline' })}
-                </Button>
-              </Popconfirm>
-            ) : null}
-            <Button type="primary" onClick={() => history.push(`/routes/${record.id}/edit`)}>
+            <Button type="primary" onClick={() => history.push(`/streams/${record.id}/edit`)}>
               {formatMessage({ id: 'component.global.edit' })}
             </Button>
             <RecordActionDropdown record={record} />
@@ -479,8 +444,8 @@ const Page: React.FC = () => {
 
   return (
     <PageHeaderWrapper
-      title={formatMessage({ id: 'page.route.list' })}
-      content={formatMessage({ id: 'page.route.list.description' })}
+      title={formatMessage({ id: 'page.stream.list' })}
+      content={formatMessage({ id: 'page.stream.list.description' })}
     >
       <ProTable<StreamModule.ResponseBody>
         actionRef={ref}
@@ -490,8 +455,8 @@ const Page: React.FC = () => {
         tableAlertRender={() => (
           <Space size={24}>
             <span>
-              {formatMessage({ id: 'page.route.chosen' })} {selectedRowKeys.length}{' '}
-              {formatMessage({ id: 'page.route.item' })}
+              {formatMessage({ id: 'page.stream.chosen' })} {selectedRowKeys.length}{' '}
+              {formatMessage({ id: 'page.stream.item' })}
             </span>
           </Space>
         )}
@@ -508,7 +473,7 @@ const Page: React.FC = () => {
                   ref.current?.reloadAndRest?.();
                 }}
               >
-                {formatMessage({ id: 'page.route.batchDeletion' })}
+                {formatMessage({ id: 'page.stream.batchDeletion' })}
               </Button>
             </Space>
           );
@@ -524,7 +489,7 @@ const Page: React.FC = () => {
           resetText: formatMessage({ id: 'component.global.reset' }),
         }}
         toolBarRender={() => [
-          <Button type="primary" onClick={() => history.push(`/routes/create`)}>
+          <Button type="primary" onClick={() => history.push(`/streams/create`)}>
             <PlusOutlined />
             {formatMessage({ id: 'component.global.create' })}
           </Button>,

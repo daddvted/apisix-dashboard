@@ -22,7 +22,7 @@ import { transformLabelList } from '@/helpers';
 import { transformRouteData, transformStepData, transformUpstreamNodes } from './transform';
 
 export const create = (data: StreamModule.RequestData, mode?: StreamModule.RequestMode) =>
-  request(`/routes`, {
+  request(`/streams`, {
     method: 'POST',
     data: mode === 'RawData' ? data : transformStepData(data),
   });
@@ -32,18 +32,18 @@ export const update = (
   data: StreamModule.RequestData,
   mode?: StreamModule.RequestMode,
 ) =>
-  request(`/routes/${rid}`, {
+  request(`/streams/${rid}`, {
     method: 'PUT',
     data: mode === 'RawData' ? data : transformStepData(data),
   });
 
 export const fetchItem = (rid: number) =>
-  request(`/routes/${rid}`).then((data) => transformRouteData(data.data));
+  request(`/streams/${rid}`).then((data) => transformRouteData(data.data));
 
 export const fetchList = ({ current = 1, pageSize = 10, ...res }) => {
   const { labels = [], API_VERSION = [], host = '', id = '', desc = '', status } = res;
 
-  return request<Res<ResListData<StreamModule.ResponseBody>>>('/routes', {
+  return request<Res<ResListData<StreamModule.ResponseBody>>>('/stream_routes', {
     params: {
       name: res.name,
       uri: res.uri,
@@ -63,7 +63,7 @@ export const fetchList = ({ current = 1, pageSize = 10, ...res }) => {
   });
 };
 
-export const remove = (rid: string[]) => request(`/routes/${rid}`, { method: 'DELETE' });
+export const remove = (rid: string[]) => request(`/stream_routes/${rid}`, { method: 'DELETE' });
 
 export const checkUniqueName = (name = '', exclude = '') =>
   request('/notexist/routes', {
@@ -96,7 +96,7 @@ export const fetchLabelList = () =>
   request('/labels/route').then(({ data }) => transformLabelList(data.rows) as LabelList);
 
 export const updateRouteStatus = (rid: string, status: StreamModule.RouteStatus) =>
-  request(`/routes/${rid}`, {
+  request(`/streams/${rid}`, {
     method: 'PATCH',
     data: { status },
   });

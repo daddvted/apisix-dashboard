@@ -14,148 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AutoComplete, Button, Col, Input, notification, Row, Select, Switch, Tag } from 'antd';
+import { AutoComplete, Button, Col, Input, InputNumber, notification, Row, Select, Switch, Tag } from 'antd';
 import Form from 'antd/es/form';
 import type { FC } from 'react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useIntl } from 'umi';
 
-import LabelsDrawer from '@/components/LabelsfDrawer';
 import PanelSection from '@/components/PanelSection';
-import { FORM_ITEM_WITHOUT_LABEL } from '@/pages/Route/constants';
 
-import { fetchLabelList, fetchServiceList } from '../../service';
+import { fetchServiceList } from '../../service';
 
-const field = 'custom_normal_labels';
 const MetaViewContext = createContext<StreamModule.Step1PassProps>({
   form: null,
   advancedMatchingRules: [],
 });
-
-const NormalLabelComponent: FC = () => {
-  const [visible, setVisible] = useState(false);
-  const { formatMessage } = useIntl();
-  const { disabled, onChange, form } = useContext(MetaViewContext);
-  const dataSource = form.getFieldValue(field) || [];
-
-  return (
-    <React.Fragment>
-      <Form.Item
-        label={formatMessage({ id: 'component.global.labels' })}
-        name={field}
-        tooltip={formatMessage({ id: 'page.route.configuration.normal-labels.tooltip' })}
-      >
-        <Select
-          mode="tags"
-          style={{ width: '100%' }}
-          placeholder="--"
-          disabled={disabled}
-          open={false}
-          bordered={false}
-          tagRender={(tagsRenderProps) => {
-            const { value, closable, onClose } = tagsRenderProps;
-            return (
-              <Tag closable={closable && !disabled} onClose={onClose} style={{ marginRight: 3 }}>
-                {value}
-              </Tag>
-            );
-          }}
-        />
-      </Form.Item>
-      <Form.Item {...FORM_ITEM_WITHOUT_LABEL}>
-        <Button type="dashed" disabled={disabled} onClick={() => setVisible(true)}>
-          {formatMessage({ id: 'component.global.manage' })}
-        </Button>
-      </Form.Item>
-      {visible && (
-        <Form.Item shouldUpdate noStyle>
-          <LabelsDrawer
-            title={formatMessage({ id: 'component.label-manager' })}
-            actionName={field}
-            dataSource={dataSource}
-            disabled={disabled || false}
-            onChange={onChange}
-            onClose={() => setVisible(false)}
-            filterList={['API_VERSION']}
-            fetchLabelList={fetchLabelList}
-          />
-        </Form.Item>
-      )}
-    </React.Fragment>
-  );
-};
-
-const VersionLabelComponent: FC = () => {
-  const { formatMessage } = useIntl();
-  const { disabled } = useContext(MetaViewContext);
-  const [labelList, setLabelList] = useState<LabelList>();
-
-  useEffect(() => {
-    fetchServiceList().then(setLabelList);
-  }, []);
-
-  return (
-    <Form.Item
-      label={formatMessage({ id: 'component.global.version' })}
-      tooltip={formatMessage({ id: 'page.route.configuration.version.tooltip' })}
-    >
-      <Row>
-        <Col span={10}>
-          <Form.Item noStyle name="custom_version_label">
-            <AutoComplete
-              options={(labelList?.API_VERSION || []).map((item) => ({ value: item }))}
-              disabled={disabled}
-              placeholder={formatMessage({
-                id: 'page.route.configuration.version.placeholder',
-              })}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form.Item>
-  );
-};
-
-const Name: FC = () => {
-  const { formatMessage } = useIntl();
-  const { disabled } = useContext(MetaViewContext);
-
-  return (
-    <Form.Item
-      label={formatMessage({ id: 'component.global.name' })}
-      required
-      tooltip={formatMessage({ id: 'page.route.form.itemRulesPatternMessage.apiNameRule' })}
-    >
-      <Row>
-        <Col span={10}>
-          <Form.Item
-            noStyle
-            name="name"
-            rules={[
-              {
-                required: true,
-                message: formatMessage({
-                  id: 'page.route.configuration.name.rules.required.description',
-                }),
-              },
-              {
-                pattern: new RegExp(/^.{0,100}$/, 'g'),
-                message: formatMessage({
-                  id: 'page.route.form.itemRulesPatternMessage.apiNameRule',
-                }),
-              },
-            ]}
-          >
-            <Input
-              placeholder={formatMessage({ id: 'page.route.configuration.name.placeholder' })}
-              disabled={disabled}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form.Item>
-  );
-};
 
 const Id: FC = () => {
   const { formatMessage } = useIntl();
@@ -178,20 +50,21 @@ const Id: FC = () => {
   );
 };
 
-const Description: FC = () => {
+const ServerAddr: FC = () => {
   const { formatMessage } = useIntl();
   const { disabled } = useContext(MetaViewContext);
 
   return (
-    <Form.Item label={formatMessage({ id: 'component.global.description' })}>
+    <Form.Item 
+      label={formatMessage({ id: 'page.stream.server_addr' })}
+      tooltip={formatMessage({ id: 'page.stream.fields.service_addr.tooltip' })}
+    >
       <Row>
-        <Col span={10}>
-          <Form.Item noStyle name="desc">
-            <Input.TextArea
-              placeholder={formatMessage({ id: 'component.global.input.placeholder.description' })}
+        <Col span={6}>
+          <Form.Item noStyle name="serverAddr">
+            <Input
+              placeholder={formatMessage({ id: 'page.stream.input.server_addr.placeholder' })}
               disabled={disabled}
-              showCount
-              maxLength={256}
             />
           </Form.Item>
         </Col>
@@ -200,144 +73,26 @@ const Description: FC = () => {
   );
 };
 
-const Publish: FC = () => {
+const ServerPort: FC = () => {
   const { formatMessage } = useIntl();
-  const { isEdit } = useContext(MetaViewContext);
-
-  return (
-    <Form.Item
-      label={formatMessage({ id: 'page.route.publish' })}
-      tooltip={formatMessage({ id: 'page.route.configuration.publish.tooltip' })}
-    >
-      <Row>
-        <Col>
-          <Form.Item noStyle name="status" valuePropName="checked">
-            <Switch disabled={isEdit} />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form.Item>
-  );
-};
-
-const WebSocket: FC = () => {
   const { disabled } = useContext(MetaViewContext);
-  return (
-    <Form.Item label="WebSocket">
-      <Row>
-        <Col>
-          <Form.Item noStyle valuePropName="checked" name="enable_websocket">
-            <Switch disabled={disabled} />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form.Item>
-  );
-};
-
-const Redirect: FC = () => {
-  const { formatMessage } = useIntl();
-  const { disabled, onChange = () => {} } = useContext(MetaViewContext);
-  const [list] = useState([
-    {
-      value: 'forceHttps',
-      label: formatMessage({ id: 'page.route.select.option.enableHttps' }),
-    },
-    {
-      value: 'customRedirect',
-      label: formatMessage({ id: 'page.route.select.option.configCustom' }),
-    },
-    {
-      value: 'disabled',
-      label: formatMessage({ id: 'page.route.select.option.forbidden' }),
-    },
-  ]);
 
   return (
     <Form.Item
-      label={formatMessage({ id: 'page.route.form.itemLabel.redirect' })}
-      tooltip={formatMessage({ id: 'page.route.fields.custom.redirectOption.tooltip' })}
+      label={formatMessage({ id: 'page.stream.server_port' })}
+      tooltip={formatMessage({ id: 'page.stream.fields.server_port.tooltip' })}
+      required
     >
       <Row>
-        <Col span={5}>
-          <Form.Item name="redirectOption" noStyle>
-            <Select
-              disabled={disabled}
-              data-cy="route-redirect"
-              onChange={(params) => {
-                onChange({ action: 'redirectOptionChange', data: params });
-              }}
-            >
-              {list.map((item) => (
-                <Select.Option value={item.value} key={item.value}>
-                  {item.label}
-                </Select.Option>
-              ))}
-            </Select>
+        <Col span={10}>
+          <Form.Item
+            noStyle
+            name="serverPort"
+          >
+            <InputNumber disabled={disabled} min={200} max={599} />
           </Form.Item>
         </Col>
       </Row>
-    </Form.Item>
-  );
-};
-
-const CustomRedirect: FC = () => {
-  const { formatMessage } = useIntl();
-  const { disabled, onChange = () => {}, form } = useContext(MetaViewContext);
-  return (
-    <Form.Item
-      noStyle
-      shouldUpdate={(prev, next) => {
-        if (prev.redirectOption !== next.redirectOption) {
-          onChange({ action: 'redirectOptionChange', data: next.redirectOption });
-        }
-        return prev.redirectOption !== next.redirectOption;
-      }}
-    >
-      {form?.getFieldValue('redirectOption') === 'customRedirect' && (
-        <Form.Item
-          label={formatMessage({ id: 'page.route.form.itemLabel.redirectCustom' })}
-          required
-          style={{ marginBottom: 0 }}
-        >
-          <Row gutter={10}>
-            <Col span={5}>
-              <Form.Item
-                name="redirectURI"
-                rules={[
-                  {
-                    required: true,
-                    message: `${formatMessage({
-                      id: 'component.global.pleaseEnter',
-                    })}${formatMessage({
-                      id: 'page.route.form.itemLabel.redirectURI',
-                    })}`,
-                  },
-                ]}
-              >
-                <Input
-                  placeholder={formatMessage({
-                    id: 'page.route.input.placeholder.redirectCustom',
-                  })}
-                  disabled={disabled}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={5}>
-              <Form.Item name="ret_code" rules={[{ required: true }]}>
-                <Select disabled={disabled} data-cy="redirect_code">
-                  <Select.Option value={301}>
-                    {formatMessage({ id: 'page.route.select.option.redirect301' })}
-                  </Select.Option>
-                  <Select.Option value={302}>
-                    {formatMessage({ id: 'page.route.select.option.redirect302' })}
-                  </Select.Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form.Item>
-      )}
     </Form.Item>
   );
 };
@@ -413,22 +168,14 @@ const MetaView: React.FC<StreamModule.Step1PassProps> = (props) => {
   const { formatMessage } = useIntl();
 
   return (
-    <PanelSection title={formatMessage({ id: 'page.route.panelSection.title.nameDescription' })}>
+    <PanelSection title={formatMessage({ id: 'page.stream.panelSection.title.nameDescription' })}>
       <MetaViewContext.Provider value={props}>
-        <Name />
         <Id />
-        <NormalLabelComponent />
-        <VersionLabelComponent />
-
-        <Description />
-
-        <Redirect />
-        <CustomRedirect />
+        <ServerAddr />
+        <ServerPort />
 
         <ServiceSelector />
 
-        <WebSocket />
-        <Publish />
       </MetaViewContext.Provider>
     </PanelSection>
   );

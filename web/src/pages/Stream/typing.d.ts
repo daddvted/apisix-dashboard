@@ -31,10 +31,12 @@ declare namespace StreamModule {
 
   type BaseData = {
     id?: number;
-    name: string;
-    desc: string;
-    uris: string[];
-    hosts: string[];
+    server_addr: string;
+    server_port: number;
+    name: string; //remove
+    desc: string; //remove
+    uris: string[]; //remove
+    hosts: string[]; //remove
     status: number;
   };
 
@@ -68,6 +70,8 @@ declare namespace StreamModule {
   // Request Body or Response Data for API
   type Body = {
     id?: number;
+    server_addr: string;
+    server_port: number;
     status: number;
     name: string;
     labels: Record<string, string>;
@@ -116,6 +120,8 @@ declare namespace StreamModule {
 
   type Form1Data = {
     id?: string;
+    server_addr: string;
+    server_port: number;
     name: string;
     desc: string;
     custom_version_label: string;

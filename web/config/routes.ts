@@ -48,6 +48,14 @@ const routes = [
     component: './Stream/List',
   },
   {
+    path: '/streams/create',
+    component: './Stream/Create',
+  },
+  {
+    path: '/streams/:sid/edit',
+    component: './Stream/Create',
+  },
+  {
     path: '/ssl/:id/edit',
     component: './SSL/Create',
   },

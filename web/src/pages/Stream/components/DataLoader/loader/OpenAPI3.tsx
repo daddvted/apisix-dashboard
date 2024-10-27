@@ -27,8 +27,8 @@ const DataLoaderOpenAPI3: React.FC = () => {
       <Col span={12}>
         <Form.Item
           name="merge_method"
-          label={formatMessage({ id: 'page.route.data_loader.labels.openapi3_merge_method' })}
-          tooltip={formatMessage({ id: 'page.route.data_loader.tips.openapi3_merge_method' })}
+          label={formatMessage({ id: 'page.stream.data_loader.labels.openapi3_merge_method' })}
+          tooltip={formatMessage({ id: 'page.stream.data_loader.tips.openapi3_merge_method' })}
           initialValue={true}
         >
           <Switch defaultChecked />

@@ -37,11 +37,11 @@ conf:
   etcd:
     endpoints:            # supports defining multiple etcd host addresses for an etcd cluster
       #- 192.168.6.140:30376
-      - 192.168.2.91:2379
+      - localhost:2379
                           # yamllint disable rule:comments-indentation
                           # etcd basic auth info
-    username: "root"    # ignore etcd username if not enable etcd auth
-    password: "P@ssw0rd"  # ignore etcd password if not enable etcd auth
+    #username: "root"    # ignore etcd username if not enable etcd auth
+    #password: "P@ssw0rd"  # ignore etcd password if not enable etcd auth
     mtls:
       key_file: ""          # Path of your self-signed client side key
       cert_file: ""         # Path of your self-signed client side cert
