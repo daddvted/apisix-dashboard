@@ -56,25 +56,9 @@ export enum HOST_REWRITE_TYPE {
 }
 
 export const DEFAULT_STEP_1_DATA: StreamModule.Form1Data = {
-  name: '',
-  desc: '',
-  labels: [],
-  status: 1,
-  priority: 0,
-  websocket: false,
-  hosts: [''],
-  uris: ['/*'],
-  remote_addrs: [''],
-  redirectOption: 'disabled',
-  redirectURI: '',
-  ret_code: 302,
-  methods: HTTP_METHOD_OPTION_LIST,
+  server_addr: '',
+  server_port: 1,
   service_id: '',
-  proxyRewrite: {
-    scheme: 'keep',
-  },
-  URIRewriteType: URI_REWRITE_TYPE.KEEP,
-  hostRewriteType: HOST_REWRITE_TYPE.KEEP,
 };
 
 export const DEFAULT_STEP_3_DATA: StreamModule.Step3Data = {

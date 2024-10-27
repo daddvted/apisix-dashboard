@@ -21,7 +21,7 @@ import { useIntl } from 'umi';
 import { AUTH_LIST } from '../../constants';
 import styles from './index.less';
 
-const AuthenticationView: React.FC<StreamModule.DebugViewProps> = (props) => {
+const AuthenticationView: React.FC<RouteModule.DebugViewProps> = (props) => {
   const { formatMessage } = useIntl();
   const [authType, setAuthType] = useState('none');
 

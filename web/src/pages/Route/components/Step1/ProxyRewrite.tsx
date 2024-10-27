@@ -38,7 +38,7 @@ const removeBtnStyle = {
  * https://apisix.apache.org/docs/apisix/plugins/proxy-rewrite
  * UI for ProxyRewrite plugin
  */
-const ProxyRewrite: React.FC<StreamModule.Step1PassProps> = ({ form, disabled }) => {
+const ProxyRewrite: React.FC<RouteModule.Step1PassProps> = ({ form, disabled }) => {
   const { formatMessage } = useIntl();
 
   const getUriRewriteItems = () => {

@@ -59,7 +59,7 @@ export default {
   'page.stream.chosen': '已选择',
 
   // button
-  'page.stream.button.returnList': '返回路由列表',
+  'page.stream.button.returnList': '返回数据流列表',
   'page.stream.button.send': '发送请求',
 
   // input
@@ -109,7 +109,7 @@ export default {
   'page.stream.select.option.methodRewriteNone': '不改写',
 
   // steps
-  'page.stream.steps.stepTitle.defineApiRequest': '设置路由信息',
+  'page.stream.steps.stepTitle.defineApiRequest': '设置数据流信息',
   'page.stream.steps.stepTitle.defineApiBackendServe': '设置上游服务',
 
   // panelSection

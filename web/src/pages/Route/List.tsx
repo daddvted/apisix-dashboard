@@ -91,7 +91,7 @@ const Page: React.FC = () => {
   };
 
   const { run: handlePublishOffline } = useThrottleFn(
-    (rid: string, status: StreamModule.RouteStatus) => {
+    (rid: string, status: RouteModule.RouteStatus) => {
       setRouteId(rid);
       updateRouteStatus(rid, status)
         .then(() => {
@@ -232,7 +232,7 @@ const Page: React.FC = () => {
     WhiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   };
-  const columns: ProColumns<StreamModule.ResponseBody>[] = [
+  const columns: ProColumns<RouteModule.ResponseBody>[] = [
     {
       title: formatMessage({ id: 'component.global.name' }),
       dataIndex: 'name',
@@ -482,7 +482,7 @@ const Page: React.FC = () => {
       title={formatMessage({ id: 'page.route.list' })}
       content={formatMessage({ id: 'page.route.list.description' })}
     >
-      <ProTable<StreamModule.ResponseBody>
+      <ProTable<RouteModule.ResponseBody>
         actionRef={ref}
         rowKey="id"
         columns={columns}

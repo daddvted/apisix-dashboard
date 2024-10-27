@@ -28,8 +28,8 @@ type Props = {
   form1: FormInstance;
   form2: FormInstance;
   redirect?: boolean;
-  step3Data: StreamModule.Step3Data;
-  advancedMatchingRules: StreamModule.MatchingRule[];
+  step3Data: RouteModule.Step3Data;
+  advancedMatchingRules: RouteModule.MatchingRule[];
   upstreamRef: any;
   isEdit?: boolean;
 };

@@ -64,7 +64,7 @@ export default {
   'menu.editor.mind': 'Mind Editor',
   'menu.editor.koni': 'Koni Editor',
   'menu.routes': 'Route',
-  'menu.stream': 'Stream',
+  'menu.streams': 'Stream',
   'menu.pluginTemplate': 'Plugin Template',
   'menu.ssl': 'SSL',
   'menu.upstream': 'Upstream',

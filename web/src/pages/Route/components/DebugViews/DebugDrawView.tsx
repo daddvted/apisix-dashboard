@@ -45,7 +45,7 @@ const { Option } = Select;
 const { Search } = Input;
 const { TabPane } = Tabs;
 
-const DebugDrawView: React.FC<StreamModule.DebugDrawProps> = (props) => {
+const DebugDrawView: React.FC<RouteModule.DebugDrawProps> = (props) => {
   const { formatMessage } = useIntl();
   const [httpMethod, setHttpMethod] = useState(HTTP_METHOD_OPTION_LIST[0]);
   const [requestProtocol, setRequestProtocol] = useState(PROTOCOL_SUPPORTED[0]);
@@ -55,7 +55,7 @@ const DebugDrawView: React.FC<StreamModule.DebugDrawProps> = (props) => {
   const [formDataForm] = Form.useForm();
   const [authForm] = Form.useForm();
   const [headerForm] = Form.useForm();
-  const [response, setResponse] = useState<StreamModule.debugResponse | null>();
+  const [response, setResponse] = useState<RouteModule.debugResponse | null>();
   const [loading, setLoading] = useState(false);
   const [body, setBody] = useState('');
   const [height, setHeight] = useState(50);
@@ -97,7 +97,7 @@ const DebugDrawView: React.FC<StreamModule.DebugDrawProps> = (props) => {
     switch (bodyType) {
       case DEBUG_BODY_TYPE_SUPPORTED[DebugBodyType.FormUrlencoded]: {
         let transformFormUrlencoded: string[] = [];
-        const FormUrlencodedData: StreamModule.debugRequestParamsFormData[] = urlencodedForm.getFieldsValue()
+        const FormUrlencodedData: RouteModule.debugRequestParamsFormData[] = urlencodedForm.getFieldsValue()
           .params;
         transformFormUrlencoded = (FormUrlencodedData || [])
           .filter((data) => data && data.check)
@@ -137,7 +137,7 @@ const DebugDrawView: React.FC<StreamModule.DebugDrawProps> = (props) => {
       }
       case DEBUG_BODY_TYPE_SUPPORTED[DebugBodyType.FormData]: {
         const transformFormData = new FormData();
-        const formDataData: StreamModule.debugRequestParamsFormData[] = formDataForm.getFieldsValue()
+        const formDataData: RouteModule.debugRequestParamsFormData[] = formDataForm.getFieldsValue()
           .params;
 
         (formDataData || [])
@@ -162,7 +162,7 @@ const DebugDrawView: React.FC<StreamModule.DebugDrawProps> = (props) => {
   };
 
   const transformHeaderAndQueryParamsFormData = (
-    formData: StreamModule.debugRequestParamsFormData[],
+    formData: RouteModule.debugRequestParamsFormData[],
   ) => {
     let transformData = {};
     (formData || [])
@@ -178,7 +178,7 @@ const DebugDrawView: React.FC<StreamModule.DebugDrawProps> = (props) => {
   };
 
   const transformAuthFormData = (
-    formData: StreamModule.authData,
+    formData: RouteModule.authData,
     userHeaderData: any,
     formHeaderData: any,
   ) => {
@@ -243,7 +243,7 @@ const DebugDrawView: React.FC<StreamModule.DebugDrawProps> = (props) => {
     )
       .then((req) => {
         setLoading(false);
-        const resp: StreamModule.debugResponse = req.data;
+        const resp: RouteModule.debugResponse = req.data;
         if (typeof resp.data !== 'string') {
           resp.data = JSON.stringify(resp.data, null, 2);
         }

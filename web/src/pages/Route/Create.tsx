@@ -57,7 +57,7 @@ const Page: React.FC<Props> = (props) => {
     formatMessage({ id: 'component.global.steps.stepTitle.preview' }),
   ];
 
-  const [advancedMatchingRules, setAdvancedMatchingRules] = useState<StreamModule.MatchingRule[]>(
+  const [advancedMatchingRules, setAdvancedMatchingRules] = useState<RouteModule.MatchingRule[]>(
     [],
   );
   const [step3Data, setStep3Data] = useState(DEFAULT_STEP_3_DATA);
@@ -236,7 +236,7 @@ const Page: React.FC<Props> = (props) => {
         form2Data: upstreamRef.current?.getData(),
         step3Data,
         advancedMatchingRules,
-      } as StreamModule.RequestData;
+      } as RouteModule.RequestData;
       const { path } = props.route;
 
       if (path.indexOf('edit') !== -1) {

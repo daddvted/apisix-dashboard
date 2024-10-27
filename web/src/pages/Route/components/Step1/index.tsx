@@ -25,7 +25,7 @@ import MetaView from './MetaView';
 import ProxyRewrite from './ProxyRewrite';
 import RequestConfigView from './RequestConfigView';
 
-const Step1: React.FC<StreamModule.Step1PassProps> = (props) => {
+const Step1: React.FC<RouteModule.Step1PassProps> = (props) => {
   return (
     <>
       <Form {...FORM_ITEM_LAYOUT} form={props.form} layout="horizontal" className={styles.stepForm}>

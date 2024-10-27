@@ -27,7 +27,7 @@ import { FORM_ITEM_WITHOUT_LABEL } from '@/pages/Route/constants';
 import { fetchLabelList, fetchServiceList } from '../../service';
 
 const field = 'custom_normal_labels';
-const MetaViewContext = createContext<StreamModule.Step1PassProps>({
+const MetaViewContext = createContext<RouteModule.Step1PassProps>({
   form: null,
   advancedMatchingRules: [],
 });
@@ -409,7 +409,7 @@ const ServiceSelector: FC = () => {
   );
 };
 
-const MetaView: React.FC<StreamModule.Step1PassProps> = (props) => {
+const MetaView: React.FC<RouteModule.Step1PassProps> = (props) => {
   const { formatMessage } = useIntl();
 
   return (

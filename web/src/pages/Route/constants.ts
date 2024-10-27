@@ -55,7 +55,7 @@ export enum HOST_REWRITE_TYPE {
   REWRITE,
 }
 
-export const DEFAULT_STEP_1_DATA: StreamModule.Form1Data = {
+export const DEFAULT_STEP_1_DATA: RouteModule.Form1Data = {
   name: '',
   desc: '',
   labels: [],
@@ -77,7 +77,7 @@ export const DEFAULT_STEP_1_DATA: StreamModule.Form1Data = {
   hostRewriteType: HOST_REWRITE_TYPE.KEEP,
 };
 
-export const DEFAULT_STEP_3_DATA: StreamModule.Step3Data = {
+export const DEFAULT_STEP_3_DATA: RouteModule.Step3Data = {
   plugins: {},
   script: {},
   plugin_config_id: '',
@@ -146,10 +146,7 @@ export const HEADER_LIST = [
   'X-Wap-Profile',
 ];
 
-export const PROTOCOL_SUPPORTED: StreamModule.debugRequest['request_protocol'][] = [
-  'http',
-  'https',
-];
+export const PROTOCOL_SUPPORTED: RouteModule.debugRequest['request_protocol'][] = ['http', 'https'];
 
 export const DEFAULT_DEBUG_PARAM_FORM_DATA = {
   params: [
@@ -167,7 +164,7 @@ export const DEFAULT_DEBUG_AUTH_FORM_DATA = {
   authType: 'none',
 };
 
-export const DEBUG_BODY_TYPE_SUPPORTED: StreamModule.DebugBodyType[] = [
+export const DEBUG_BODY_TYPE_SUPPORTED: RouteModule.DebugBodyType[] = [
   'none',
   'x-www-form-urlencoded',
   'form-data',

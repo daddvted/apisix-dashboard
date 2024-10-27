@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 export default {
+  'page.stream.server_addr': 'Server Address',
+  'page.stream.server_port': 'Server Port',
   'page.stream.button.returnList': 'Goto List',
   'page.stream.button.send': 'Send',
   'page.stream.onlineDebug': 'Online Debug',

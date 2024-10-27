@@ -21,8 +21,8 @@ import { transformLabelValueToKeyValue } from '@/helpers';
 import { HOST_REWRITE_TYPE, SCHEME_REWRITE, URI_REWRITE_TYPE } from '@/pages/Route/constants';
 
 export const transformProxyRewrite2Plugin = (
-  data: StreamModule.ProxyRewrite,
-): StreamModule.ProxyRewrite => {
+  data: RouteModule.ProxyRewrite,
+): RouteModule.ProxyRewrite => {
   const omitFieldsList: string[] = ['kvHeaders'];
   let headers: Record<string, string> = {};
 
@@ -58,7 +58,7 @@ export const transformProxyRewrite2Plugin = (
 };
 
 const transformProxyRewrite2Formdata = (pluginsData: any) => {
-  const proxyRewriteData: StreamModule.ProxyRewrite = {
+  const proxyRewriteData: RouteModule.ProxyRewrite = {
     scheme: SCHEME_REWRITE.KEEP,
   };
   let URIRewriteType = URI_REWRITE_TYPE.KEEP;
@@ -121,11 +121,11 @@ export const transformStepData = ({
   form2Data,
   advancedMatchingRules,
   step3Data,
-}: StreamModule.RequestData) => {
+}: RouteModule.RequestData) => {
   const { custom_normal_labels, custom_version_label, service_id = '' } = form1Data;
 
-  let redirect: StreamModule.Redirect = {};
-  const proxyRewriteFormData: StreamModule.ProxyRewrite = form1Data.proxyRewrite;
+  let redirect: RouteModule.Redirect = {};
+  const proxyRewriteFormData: RouteModule.ProxyRewrite = form1Data.proxyRewrite;
   const proxyRewriteConfig = transformProxyRewrite2Plugin(proxyRewriteFormData);
 
   const step3DataCloned = cloneDeep(step3Data);
@@ -148,7 +148,7 @@ export const transformStepData = ({
   if (custom_version_label) {
     labels.API_VERSION = custom_version_label;
   }
-  const data: Partial<StreamModule.Body> = {
+  const data: Partial<RouteModule.Body> = {
     ...form1Data,
     labels,
     ...step3DataCloned,
@@ -275,7 +275,7 @@ export const transformStepData = ({
   ]);
 };
 
-const transformVarsToRules = (data: StreamModule.VarTuple[] = []): StreamModule.MatchingRule[] =>
+const transformVarsToRules = (data: RouteModule.VarTuple[] = []): RouteModule.MatchingRule[] =>
   data.map((varTuple) => {
     const key = varTuple[0];
     const reverse = varTuple[1] === '!';
@@ -292,7 +292,7 @@ const transformVarsToRules = (data: StreamModule.VarTuple[] = []): StreamModule.
       name = key;
     }
     return {
-      position: position as StreamModule.VarPosition,
+      position: position as RouteModule.VarPosition,
       name,
       value: typeof value === 'object' ? JSON.stringify(value) : value,
       reverse,
@@ -303,20 +303,20 @@ const transformVarsToRules = (data: StreamModule.VarTuple[] = []): StreamModule.
 
 export const transformUpstreamNodes = (
   nodes: Record<string, number> = {},
-): StreamModule.UpstreamHost[] => {
-  const data: StreamModule.UpstreamHost[] = [];
+): RouteModule.UpstreamHost[] => {
+  const data: RouteModule.UpstreamHost[] = [];
   Object.entries(nodes).forEach(([k, v]) => {
     const [host, port] = k.split(':');
     data.push({ host, port: Number(port), weight: Number(v) });
   });
   if (data.length === 0) {
-    data.push({} as StreamModule.UpstreamHost);
+    data.push({} as RouteModule.UpstreamHost);
   }
   return data;
 };
 
 // Transform response's data
-export const transformRouteData = (data: StreamModule.Body) => {
+export const transformRouteData = (data: RouteModule.Body) => {
   const {
     name,
     id,
@@ -338,7 +338,7 @@ export const transformRouteData = (data: StreamModule.Body) => {
     enable_websocket,
   } = data;
 
-  const form1Data: Partial<StreamModule.Form1Data> = {
+  const form1Data: Partial<RouteModule.Form1Data> = {
     name,
     id,
     desc,
@@ -377,7 +377,7 @@ export const transformRouteData = (data: StreamModule.Body) => {
   form1Data.URIRewriteType = URIRewriteType;
   form1Data.hostRewriteType = hostRewriteType;
 
-  const advancedMatchingRules: StreamModule.MatchingRule[] = transformVarsToRules(vars);
+  const advancedMatchingRules: RouteModule.MatchingRule[] = transformVarsToRules(vars);
 
   if (upstream && Object.keys(upstream).length) {
     upstream.upstream_id = 'Custom';
@@ -389,7 +389,7 @@ export const transformRouteData = (data: StreamModule.Body) => {
 
   const { plugins, script, plugin_config_id = '' } = data;
 
-  const step3Data: StreamModule.Step3Data = {
+  const step3Data: RouteModule.Step3Data = {
     plugins,
     script,
     plugin_config_id,

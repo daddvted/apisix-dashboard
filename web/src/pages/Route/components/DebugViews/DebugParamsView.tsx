@@ -25,7 +25,7 @@ import styles from './index.less';
 
 const { Option } = AutoComplete;
 
-const DebugParamsView: React.FC<StreamModule.DebugViewProps> = (props) => {
+const DebugParamsView: React.FC<RouteModule.DebugViewProps> = (props) => {
   const { formatMessage } = useIntl();
 
   const allSelectOptions = props.inputType === 'header' ? HEADER_LIST : [];

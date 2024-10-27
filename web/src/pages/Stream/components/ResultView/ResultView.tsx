@@ -31,12 +31,12 @@ const ResultView: React.FC<Props> = (props) => {
         id: 'component.status.success',
       })}`}
       extra={[
-        <Button type="primary" key="goto-list" onClick={() => history.replace('/routes/list')}>
-          {formatMessage({ id: 'page.route.button.returnList' })}
+        <Button type="primary" key="goto-list" onClick={() => history.replace('/streams/list')}>
+          {formatMessage({ id: 'page.stream.button.returnList' })}
         </Button>,
         <Button key="create-new" onClick={() => props.createNew()}>
           {`${formatMessage({ id: 'component.global.create' })} ${formatMessage({
-            id: 'menu.routes',
+            id: 'menu.streams',
           })}`}
         </Button>,
       ]}

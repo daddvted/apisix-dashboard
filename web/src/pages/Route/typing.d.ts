@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-declare namespace StreamModule {
+declare namespace RouteModule {
   type OperatorNot = '!';
 
   type Operator = '==' | '~=' | '>' | '<' | '~~' | '~*' | 'IN' | 'HAS';
 
   type VarTuple =
-    | [string, StreamModule.Operator, string | any[]]
-    | [string, StreamModule.OperatorNot, StreamModule.Operator, string | any[]];
+    | [string, RouteModule.Operator, string | any[]]
+    | [string, RouteModule.OperatorNot, RouteModule.Operator, string | any[]];
 
   type VarPosition = 'arg' | 'post_arg' | 'http' | 'cookie' | 'buildin';
 

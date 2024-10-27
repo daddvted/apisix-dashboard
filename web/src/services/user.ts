@@ -18,7 +18,7 @@ import logo from '@/assets/logo.svg';
 
 export async function queryCurrent(): Promise<API.CurrentUser> {
   return Promise.resolve({
-    name: 'APISIX User',
+    name: 'Admin',
     avatar: logo,
     userid: '00000001',
     access: 'admin',

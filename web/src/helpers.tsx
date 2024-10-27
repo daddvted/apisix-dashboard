@@ -40,7 +40,7 @@ export const getMenuData = (): MenuDataItem[] => {
       icon: <IconFont name="iconroute" />,
     },
     {
-      name: 'stream',
+      name: 'streams',
       path: '/streams/list',
       icon: <IconFont name="iconproxy-mirror" />,
     },

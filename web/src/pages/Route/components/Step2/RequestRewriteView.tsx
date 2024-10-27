@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react';
 import UpstreamForm from '@/components/Upstream';
 import { fetchUpstreamList } from '@/components/Upstream/service';
 
-const RequestRewriteView: React.FC<StreamModule.Step2PassProps> = ({
+const RequestRewriteView: React.FC<RouteModule.Step2PassProps> = ({
   form,
   upstreamRef,
   disabled,

@@ -59,8 +59,6 @@ const Page: React.FC = () => {
   const [editorMode, setEditorMode] = useState<'create' | 'update'>('create');
   const { paginationConfig, savePageList, checkPageList } = usePagination();
   const [debugDrawVisible, setDebugDrawVisible] = useState(false);
-  //const [routeId, setRouteId] = useState<string>('');
-  const [setRouteId] = useState<string>('');
 
   // REMOVE LATER
   const rowSelection: any = {
@@ -80,26 +78,6 @@ const Page: React.FC = () => {
 
     checkPageList(ref);
   };
-
-  const { run: handlePublishOffline } = useThrottleFn(
-    (rid: string, status: StreamModule.RouteStatus) => {
-      setRouteId(rid);
-      updateRouteStatus(rid, status)
-        .then(() => {
-          const actionName = status
-            ? formatMessage({ id: 'page.stream.publish' })
-            : formatMessage({ id: 'page.stream.offline' });
-          handleTableActionSuccessResponse(
-            `${actionName} ${formatMessage({
-              id: 'menu.routes',
-            })} ${formatMessage({ id: 'component.status.success' })}`,
-          );
-        })
-        .finally(() => {
-          setRouteId('');
-        });
-    },
-  );
 
   const ListToolbar = () => {
     const tools = [
@@ -186,7 +164,7 @@ const Page: React.FC = () => {
               return remove(record.id!).then(() => {
                 handleTableActionSuccessResponse(
                   `${formatMessage({ id: 'component.global.delete' })} ${formatMessage({
-                    id: 'menu.routes',
+                    id: 'menu.streams',
                   })} ${formatMessage({ id: 'component.status.success' })}`,
                 );
               });
@@ -217,12 +195,6 @@ const Page: React.FC = () => {
     );
   };
 
-  const tagStyle = {
-    maxWidth: '200px',
-    overflow: 'hidden',
-    WhiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-  };
   const columns: ProColumns<StreamModule.ResponseBody>[] = [
     {
       title: formatMessage({ id: 'component.global.id' }),

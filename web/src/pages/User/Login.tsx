@@ -100,14 +100,16 @@ const Page: React.FC = () => {
       <div className={styles.content}>
         <div className={styles.top}>
           <div className={styles.header}>
-            <Link to="/">
+            {/* <Link to="/"> 
               <img alt="logo" className={styles.logo} src={logo} />
             </Link>
+            -->
+            */}
           </div>
           <div className={styles.desc}>
-            Apache APISIX Dashboard
-            <br />
-            Cloud-Native Microservices API Gateway
+            <h2>
+              APISIX Portal
+            </h2>
           </div>
         </div>
         <div className={styles.main}>
@@ -123,7 +125,7 @@ const Page: React.FC = () => {
           </Button>
         </div>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

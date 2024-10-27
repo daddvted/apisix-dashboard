@@ -19,26 +19,26 @@ import { request } from 'umi';
 
 import { transformLabelList } from '@/helpers';
 
-import { transformRouteData, transformStepData, transformUpstreamNodes } from './transform';
+import { transformStreamData, transformStepData, transformUpstreamNodes } from './transform';
 
 export const create = (data: StreamModule.RequestData, mode?: StreamModule.RequestMode) =>
-  request(`/streams`, {
+  request(`/stream_routes`, {
     method: 'POST',
     data: mode === 'RawData' ? data : transformStepData(data),
   });
 
 export const update = (
-  rid: string,
+  sid: string,
   data: StreamModule.RequestData,
   mode?: StreamModule.RequestMode,
 ) =>
-  request(`/streams/${rid}`, {
+  request(`/stream_routes/${sid}`, {
     method: 'PUT',
     data: mode === 'RawData' ? data : transformStepData(data),
   });
 
-export const fetchItem = (rid: number) =>
-  request(`/streams/${rid}`).then((data) => transformRouteData(data.data));
+export const fetchItem = (sid: number) =>
+  request(`/stream_routes/${sid}`).then((data) => transformStreamData(data.data));
 
 export const fetchList = ({ current = 1, pageSize = 10, ...res }) => {
   const { labels = [], API_VERSION = [], host = '', id = '', desc = '', status } = res;
@@ -63,7 +63,7 @@ export const fetchList = ({ current = 1, pageSize = 10, ...res }) => {
   });
 };
 
-export const remove = (rid: string[]) => request(`/stream_routes/${rid}`, { method: 'DELETE' });
+export const remove = (sid: string[]) => request(`/stream_routes/${sid}`, { method: 'DELETE' });
 
 export const checkUniqueName = (name = '', exclude = '') =>
   request('/notexist/routes', {
@@ -95,8 +95,8 @@ export const checkHostWithSSL = (hosts: string[]) =>
 export const fetchLabelList = () =>
   request('/labels/route').then(({ data }) => transformLabelList(data.rows) as LabelList);
 
-export const updateRouteStatus = (rid: string, status: StreamModule.RouteStatus) =>
-  request(`/streams/${rid}`, {
+export const updateRouteStatus = (sid: string, status: StreamModule.RouteStatus) =>
+  request(`/streams/${sid}`, {
     method: 'PATCH',
     data: { status },
   });

@@ -33,13 +33,13 @@ import PanelSection from '@/components/PanelSection';
 
 const { Title, Text } = Typography;
 
-const MatchingRulesView: React.FC<StreamModule.Step1PassProps> = ({
+const MatchingRulesView: React.FC<RouteModule.Step1PassProps> = ({
   advancedMatchingRules,
   disabled,
   onChange = () => {},
 }) => {
   const [visible, setVisible] = useState(false);
-  const [mode, setMode] = useState<StreamModule.ModalType>('CREATE');
+  const [mode, setMode] = useState<RouteModule.ModalType>('CREATE');
   const [namePlaceholder, setNamePlaceholder] = useState('');
   const [modalForm] = Form.useForm();
 
@@ -50,7 +50,7 @@ const MatchingRulesView: React.FC<StreamModule.Step1PassProps> = ({
   const { formatMessage } = useIntl();
 
   const onOk = () => {
-    modalForm.validateFields().then((value: StreamModule.MatchingRule) => {
+    modalForm.validateFields().then((value: RouteModule.MatchingRule) => {
       if (value.operator === 'IN') {
         try {
           JSON.parse(value.value as string);
@@ -88,7 +88,7 @@ const MatchingRulesView: React.FC<StreamModule.Step1PassProps> = ({
     });
   };
 
-  const handleEdit = (record: StreamModule.MatchingRule) => {
+  const handleEdit = (record: RouteModule.MatchingRule) => {
     setMode('EDIT');
     setVisible(true);
     modalForm.setFieldsValue(record);
@@ -116,7 +116,7 @@ const MatchingRulesView: React.FC<StreamModule.Step1PassProps> = ({
     {
       title: formatMessage({ id: 'page.route.parameterPosition' }),
       key: 'position',
-      render: (text: StreamModule.MatchingRule) => {
+      render: (text: RouteModule.MatchingRule) => {
         let renderText;
         switch (text.position) {
           case 'http':
@@ -148,12 +148,12 @@ const MatchingRulesView: React.FC<StreamModule.Step1PassProps> = ({
     {
       title: formatMessage({ id: 'page.route.reverse' }),
       key: 'reverse',
-      render: (text: StreamModule.MatchingRule) => text.reverse.toString(),
+      render: (text: RouteModule.MatchingRule) => text.reverse.toString(),
     },
     {
       title: formatMessage({ id: 'page.route.operationalCharacter' }),
       key: 'operator',
-      render: (text: StreamModule.MatchingRule) => OperatorRenderText[text.operator],
+      render: (text: RouteModule.MatchingRule) => OperatorRenderText[text.operator],
     },
     {
       title: formatMessage({ id: 'page.route.value' }),
@@ -165,7 +165,7 @@ const MatchingRulesView: React.FC<StreamModule.Step1PassProps> = ({
       : {
           title: formatMessage({ id: 'component.global.operation' }),
           key: 'action',
-          render: (_: any, record: StreamModule.MatchingRule) => (
+          render: (_: any, record: RouteModule.MatchingRule) => (
             <Space size="middle">
               <a onClick={() => handleEdit(record)}>
                 {formatMessage({ id: 'component.global.edit' })}

@@ -32,7 +32,6 @@ import Step3 from './components/Step3';
 import { DEFAULT_STEP_1_DATA, DEFAULT_STEP_3_DATA } from './constants';
 import styles from './Create.less';
 import { checkUniqueName, create, fetchItem, update } from './service';
-import { transformProxyRewrite2Plugin } from './transform';
 
 const { Step } = Steps;
 
@@ -46,13 +45,13 @@ const Page: React.FC<Props> = (props) => {
   const { formatMessage } = useIntl();
 
   const STEP_HEADER_2 = [
-    formatMessage({ id: 'page.route.steps.stepTitle.defineApiRequest' }),
+    formatMessage({ id: 'page.stream.steps.stepTitle.defineApiRequest' }),
     formatMessage({ id: 'component.global.steps.stepTitle.preview' }),
   ];
 
   const STEP_HEADER_4 = [
-    formatMessage({ id: 'page.route.steps.stepTitle.defineApiRequest' }),
-    formatMessage({ id: 'page.route.steps.stepTitle.defineApiBackendServe' }),
+    formatMessage({ id: 'page.stream.steps.stepTitle.defineApiRequest' }),
+    formatMessage({ id: 'page.stream.steps.stepTitle.defineApiBackendServe' }),
     formatMessage({ id: 'component.global.steps.stepTitle.pluginConfig' }),
     formatMessage({ id: 'component.global.steps.stepTitle.preview' }),
   ];
@@ -70,16 +69,15 @@ const Page: React.FC<Props> = (props) => {
   const [step, setStep] = useState(1);
   const [stepHeader, setStepHeader] = useState(STEP_HEADER_4);
 
-  const setupRoute = (rid: number) =>
-    fetchItem(rid).then((data) => {
-      const routeData = { ...data };
+  const setupStream = (sid: number) =>
+    fetchItem(sid).then((data) => {
+      const streamData = { ...data };
       if (props.route.path.indexOf('duplicate') !== -1) {
-        routeData.form1Data.name = '';
+        streamData.form1Data.id = '';
       }
-      form1.setFieldsValue(routeData.form1Data);
-      setAdvancedMatchingRules(routeData.advancedMatchingRules);
-      form2.setFieldsValue(routeData.form2Data);
-      setStep3Data(routeData.step3Data);
+      form1.setFieldsValue(streamData.form1Data);
+      form2.setFieldsValue(streamData.form2Data);
+      setStep3Data(streamData.step3Data);
     });
 
   const onReset = () => {
@@ -91,17 +89,11 @@ const Page: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (props.route.path.indexOf('edit') !== -1 || props.route.path.indexOf('duplicate') !== -1) {
-      setupRoute(props.match.params.rid);
+      setupStream(props.match.params.sid);
     } else {
       onReset();
     }
   }, []);
-
-  const getProxyRewriteEnable = () => {
-    console.log("+++++++++");
-    console.log(form1.getFieldValue('proxyRewrite'));
-    return !isEmpty(transformProxyRewrite2Plugin(form1.getFieldValue('proxyRewrite')));
-  };
 
   const renderStepList = () => {
     if (step === 1) {
@@ -109,7 +101,7 @@ const Page: React.FC<Props> = (props) => {
         <Step1
           form={form1}
           upstreamForm={form2}
-          advancedMatchingRules={advancedMatchingRules}
+          // advancedMatchingRules={advancedMatchingRules}
           onChange={({ action, data }) => {
             if (action === 'redirectOptionChange') {
               if (data === 'customRedirect') {
@@ -136,7 +128,7 @@ const Page: React.FC<Props> = (props) => {
       if (redirect) {
         return (
           <CreateStep4
-            advancedMatchingRules={advancedMatchingRules}
+            // advancedMatchingRules={advancedMatchingRules}
             form1={form1}
             form2={form2}
             step3Data={step3Data}
@@ -159,8 +151,8 @@ const Page: React.FC<Props> = (props) => {
       return (
         <Step3
           data={step3Data}
-          isForceHttps={form1.getFieldValue('redirectOption') === 'forceHttps'}
-          isProxyEnable={getProxyRewriteEnable()}
+          // isForceHttps={form1.getFieldValue('redirectOption') === 'forceHttps'}
+          // isProxyEnable={getProxyRewriteEnable()}
           onChange={({ plugins, script = {}, plugin_config_id }) => {
             setStep3Data({ plugins, script, plugin_config_id });
           }}
@@ -233,7 +225,7 @@ const Page: React.FC<Props> = (props) => {
 
   const onStepChange = (nextStep: number) => {
     const onUpdateOrCreate = () => {
-      const routeData = {
+      const streamData = {
         form1Data: form1.getFieldsValue(),
         form2Data: upstreamRef.current?.getData(),
         step3Data,
@@ -242,14 +234,14 @@ const Page: React.FC<Props> = (props) => {
       const { path } = props.route;
 
       if (path.indexOf('edit') !== -1) {
-        update((props as any).match.params.rid, routeData).then(() => {
+        update((props as any).match.params.sid, streamData).then(() => {
           setStep(5);
         });
       } else {
         if (path.indexOf('duplicate') !== -1) {
-          delete routeData.form1Data.id;
+          delete streamData.form1Data.id;
         }
-        createRoutes(routeData).then(() => {
+        createRoutes(streamData).then(() => {
           setStep(5);
         });
       }
@@ -264,7 +256,7 @@ const Page: React.FC<Props> = (props) => {
         form1.validateFields().then((value) => {
           checkUniqueName(
             value.name,
-            props.route.path.indexOf('edit') > 0 ? (props as any).match.params.rid : '',
+            props.route.path.indexOf('edit') > 0 ? (props as any).match.params.sid : '',
           ).then(() => {
             setStep(nextStep);
           });
@@ -304,7 +296,7 @@ const Page: React.FC<Props> = (props) => {
       <PageHeaderWrapper
         title={`${formatMessage({
           id: `component.global.${props.route.path.split('/').slice(-1)[0]}`,
-        })} ${formatMessage({ id: 'menu.routes' })}`}
+        })} ${formatMessage({ id: 'menu.streams' })}`}
       >
         <Card bordered={false}>
           <Steps current={step - 1} className={styles.steps}>

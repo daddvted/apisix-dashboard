@@ -113,7 +113,7 @@ declare namespace StreamModule {
   type Step1PassProps = {
     form: FormInstance;
     upstreamForm?: FormInstance;
-    advancedMatchingRules: MatchingRule[];
+    // advancedMatchingRules: MatchingRule[];
     disabled?: boolean;
     isEdit?: boolean;
     onChange?: (data: { action: string; data: T }) => void;
@@ -123,25 +123,25 @@ declare namespace StreamModule {
     id?: string;
     server_addr: string;
     server_port: number;
-    name: string;
-    desc: string;
-    custom_version_label: string;
-    custom_normal_labels: string[];
-    priority: number;
-    websocket: boolean;
-    hosts: string[];
-    uris: string[];
-    remote_addrs: string[];
-    methods: HttpMethod[];
-    redirectOption: 'forceHttps' | 'customRedirect' | 'disabled';
-    redirectURI?: string;
-    ret_code?: number;
-    status: number;
-    enable_websocket?: boolean;
+    // name: string;
+    // desc: string;
+    // custom_version_label: string;
+    // custom_normal_labels: string[];
+    // priority: number;
+    // websocket: boolean;
+    // hosts: string[];
+    // uris: string[];
+    // remote_addrs: string[];
+    // methods: HttpMethod[];
+    // redirectOption: 'forceHttps' | 'customRedirect' | 'disabled';
+    // redirectURI?: string;
+    // ret_code?: number;
+    // status: number;
+    // enable_websocket?: boolean;
     service_id: string;
-    proxyRewrite: ProxyRewrite;
-    URIRewriteType: number;
-    hostRewriteType: number;
+    // proxyRewrite: ProxyRewrite;
+    // URIRewriteType: number;
+    // hostRewriteType: number;
   };
   type Kvobject = {
     key: string;
@@ -172,7 +172,7 @@ declare namespace StreamModule {
     form1Data: Form1Data;
     form2Data: UpstreamComponent.ResponseData;
     step3Data: Step3Data;
-    advancedMatchingRules: MatchingRule[];
+    // advancedMatchingRules: MatchingRule[];
   };
 
   type RequestBody = {
@@ -198,12 +198,12 @@ declare namespace StreamModule {
 
   type ResponseBody = {
     id: string;
-    methods: HttpMethod[];
-    name: string;
-    remote_addrs: string[];
-    script: any;
-    desc?: string;
-    labels: Record<string, string>;
+    // methods: HttpMethod[];
+    // name: string;
+    // remote_addrs: string[];
+    // script: any;
+    // desc?: string;
+    // labels: Record<string, string>;
     upstream: {
       checks: UpstreamModule.HealthCheck;
       create_time: number;
@@ -214,10 +214,10 @@ declare namespace StreamModule {
       timeout: UpstreamModule.Timeout;
       type: UpstreamModule.Type;
     };
-    uri: string;
-    uris?: string[];
-    host: string;
-    hosts?: string[];
+    // uri: string;
+    // uris?: string[];
+    // host: string;
+    // hosts?: string[];
     create_time: number;
     update_time: number;
     status: number;

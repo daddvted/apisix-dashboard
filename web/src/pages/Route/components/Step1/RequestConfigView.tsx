@@ -29,7 +29,7 @@ const removeBtnStyle = {
   alignItems: 'center',
 };
 
-const RequestConfigView: React.FC<StreamModule.Step1PassProps> = ({ form, disabled }) => {
+const RequestConfigView: React.FC<RouteModule.Step1PassProps> = ({ form, disabled }) => {
   const { formatMessage } = useIntl();
 
   const HostList = () => (

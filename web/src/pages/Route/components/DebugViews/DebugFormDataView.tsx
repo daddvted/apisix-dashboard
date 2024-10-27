@@ -22,7 +22,7 @@ import { useIntl } from 'umi';
 import { DebugBodyFormDataValueType } from '../../constants';
 import styles from './index.less';
 
-const DebugFormDataView: React.FC<StreamModule.DebugViewProps> = (props) => {
+const DebugFormDataView: React.FC<RouteModule.DebugViewProps> = (props) => {
   const { formatMessage } = useIntl();
   const typeOptions = [
     { label: DebugBodyFormDataValueType.Text, value: DebugBodyFormDataValueType.Text },

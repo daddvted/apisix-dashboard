@@ -30,7 +30,7 @@ const defaultSettings = {
   menu: {
     locale: true,
   },
-  title: 'APISIX Dashboard',
+  title: 'APISIX Portal',
   pwa: false,
   iconfontUrl: '',
   serveUrlMap: {
