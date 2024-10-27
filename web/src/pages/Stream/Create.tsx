@@ -98,6 +98,8 @@ const Page: React.FC<Props> = (props) => {
   }, []);
 
   const getProxyRewriteEnable = () => {
+    console.log("+++++++++");
+    console.log(form1.getFieldValue('proxyRewrite'));
     return !isEmpty(transformProxyRewrite2Plugin(form1.getFieldValue('proxyRewrite')));
   };
 
@@ -184,7 +186,7 @@ const Page: React.FC<Props> = (props) => {
         <ResultView
           createNew={() => {
             if (props.route.path.indexOf('edit') !== -1) {
-              return history.replace('/routes/create');
+              return history.replace('/streams/create');
             }
             return onReset();
           }}

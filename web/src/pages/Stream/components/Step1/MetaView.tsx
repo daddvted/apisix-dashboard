@@ -59,9 +59,10 @@ const ServerAddr: FC = () => {
     <Form.Item 
       label={formatMessage({ id: 'page.stream.server_addr' })}
       tooltip={formatMessage({ id: 'page.stream.fields.service_addr.tooltip' })}
+      required
     >
       <Row>
-        <Col span={6}>
+        <Col span={10}>
           <Form.Item noStyle name="serverAddr">
             <Input
               placeholder={formatMessage({ id: 'page.stream.input.server_addr.placeholder' })}
@@ -90,7 +91,7 @@ const ServerPort: FC = () => {
             noStyle
             name="serverPort"
           >
-            <InputNumber disabled={disabled} min={200} max={599} />
+            <InputNumber disabled={disabled} min={1} max={65535} />
           </Form.Item>
         </Col>
       </Row>

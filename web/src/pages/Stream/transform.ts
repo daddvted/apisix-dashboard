@@ -25,6 +25,8 @@ export const transformProxyRewrite2Plugin = (
 ): StreamModule.ProxyRewrite => {
   const omitFieldsList: string[] = ['kvHeaders'];
   let headers: Record<string, string> = {};
+  console.log('---------------');
+  console.log(data);
 
   if (data.scheme !== 'http' && data.scheme !== 'https') {
     omitFieldsList.push('scheme');
