@@ -295,8 +295,6 @@ const Page: React.FC = () => {
           ));
       },
       renderFormItem: (_, { type }) => {
-        console.log(labelList);
-
         if (type === 'form') {
           return null;
         }

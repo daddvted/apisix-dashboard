@@ -41,8 +41,6 @@ export const fetchItem = (sid: number) =>
   request(`/stream_routes/${sid}`).then((data) => transformStreamData(data.data));
 
 export const fetchList = ({ current = 1, pageSize = 10, ...res }) => {
-  console.log('********************');
-  console.log(res);
   const { server_addr = '', server_port = '', id = '' } = res;
 
   return request<Res<ResListData<StreamModule.ResponseBody>>>('/stream_routes', {

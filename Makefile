@@ -141,5 +141,5 @@ release-src:
 .PHONY: image
 image:
 #   @echo ${TAG}
-	docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
-#	DOCKER_BUILDKIT=0 docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
+#	docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
+	DOCKER_BUILDKIT=0 docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
