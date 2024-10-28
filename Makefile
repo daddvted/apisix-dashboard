@@ -138,8 +138,8 @@ release-src:
 	mv $(RELEASE_SRC).tgz.asc release/$(RELEASE_SRC).tgz.asc
 	mv $(RELEASE_SRC).tgz.sha512 release/$(RELEASE_SRC).tgz.sha512
 
-.PHONY: image
-image:
-#   @echo ${TAG}
-#	docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
-	DOCKER_BUILDKIT=0 docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
+	#DOCKER_BUILDKIT=0 docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
+
+quick: 
+	CGO_ENABLED=0 api/build.sh && cd ./web && export CYPRESS_INSTALL_BINARY=0  && yarn install --ignore-scripts && yarn build  && mkdir -p ../output/logs
+	docker build --no-cache -t apisix-dashboard:${TAG} -f Dockerfile.quick .
