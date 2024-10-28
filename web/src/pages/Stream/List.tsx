@@ -141,12 +141,14 @@ const Page: React.FC = () => {
           setEditorMode('update');
         },
       },
+      /*
       {
         name: formatMessage({ id: 'component.global.duplicate' }),
         onClick: () => {
           history.push(`/streams/${record.id}/duplicate`);
         },
       },
+      */
       {
         name: formatMessage({ id: 'component.global.delete' }),
         onClick: () => {
@@ -200,6 +202,7 @@ const Page: React.FC = () => {
       title: formatMessage({ id: 'component.global.id' }),
       dataIndex: 'id',
       width: 200,
+      hideInSearch: true
     },
     {
       title: formatMessage({ id: 'page.stream.server_addr' }),
@@ -211,172 +214,6 @@ const Page: React.FC = () => {
       dataIndex: 'server_port',
       width: 150,
     },
-    /*
-    {
-      title: formatMessage({ id: 'page.stream.host' }),
-      dataIndex: 'host',
-      width: 224,
-      render: (_, record) => {
-        const list = record.hosts || (record.host && [record.host]) || [];
-
-        return list.map((item) => (
-          <Tooltip key={item} placement="topLeft" title={item}>
-            <Tag color="geekblue" style={tagStyle}>
-              {item}
-            </Tag>
-          </Tooltip>
-        ));
-      },
-    },
-    {
-      title: formatMessage({ id: 'page.stream.path' }),
-      dataIndex: 'uri',
-      width: 224,
-      render: (_, record) => {
-        const list = record.uris || (record.uri && [record.uri]) || [];
-
-        return list.map((item) => (
-          <Tooltip key={item} placement="topLeft" title={item}>
-            <Tag color="geekblue" style={tagStyle}>
-              {item}
-            </Tag>
-          </Tooltip>
-        ));
-      },
-    },
-    {
-      title: formatMessage({ id: 'component.global.description' }),
-      dataIndex: 'desc',
-      ellipsis: true,
-      width: 200,
-    },
-    {
-      title: formatMessage({ id: 'component.global.labels' }),
-      dataIndex: 'labels',
-      width: 240,
-      render: (_, record) => {
-        return Object.keys(record.labels || {})
-          .filter((item) => item !== 'API_VERSION')
-          .map((item) => (
-            <Tag key={Math.random().toString(36).slice(2)}>
-              {item}:{record.labels[item]}
-            </Tag>
-          ));
-      },
-      renderFormItem: (_, { type }) => {
-        console.log(labelList);
-
-        if (type === 'form') {
-          return null;
-        }
-
-        return (
-          <Select
-            mode="tags"
-            style={{ width: '100%' }}
-            placeholder={formatMessage({ id: 'component.global.pleaseChoose' })}
-            tagRender={(props) => {
-              const { value, closable, onClose } = props;
-              return (
-                <Tag closable={closable} onClose={onClose} style={{ marginRight: 3 }}>
-                  {value}
-                </Tag>
-              );
-            }}
-          >
-            {Object.keys(labelList)
-              .filter((item) => item !== 'API_VERSION')
-              .map((key) => {
-                return (
-                  <OptGroup label={key} key={Math.random().toString(36).slice(2)}>
-                    {(labelList[key] || []).map((value: string) => (
-                      <Option key={Math.random().toString(36).slice(2)} value={`${key}:${value}`}>
-                        {' '}
-                        {value}{' '}
-                      </Option>
-                    ))}
-                  </OptGroup>
-                );
-              })}
-          </Select>
-        );
-      },
-    },
-    {
-      title: formatMessage({ id: 'component.global.version' }),
-      dataIndex: 'API_VERSION',
-      width: 100,
-      render: (_, record) => {
-        return Object.keys(record.labels || {})
-          .filter((item) => item === 'API_VERSION')
-          .map((item) => record.labels[item]);
-      },
-      renderFormItem: (_, { type }) => {
-        if (type === 'form') {
-          return null;
-        }
-
-        return (
-          <Select
-            style={{ width: '100%' }}
-            placeholder={formatMessage({ id: 'component.global.pleaseChoose' })}
-            allowClear
-          >
-            {Object.keys(labelList)
-              .filter((item) => item === 'API_VERSION')
-              .map((key) => {
-                return (
-                  <OptGroup label={key} key={Math.random().toString(36).slice(2)}>
-                    {(labelList[key] || []).map((value: string) => (
-                      <Option key={Math.random().toString(36).slice(2)} value={`${key}:${value}`}>
-                        {' '}
-                        {value}{' '}
-                      </Option>
-                    ))}
-                  </OptGroup>
-                );
-              })}
-          </Select>
-        );
-      },
-    },
-    {
-      title: formatMessage({ id: 'page.stream.status' }),
-      dataIndex: 'status',
-      width: 100,
-      render: (_, record) => (
-        <>
-          {record.status ? (
-            <Tag color="green">{formatMessage({ id: 'page.stream.published' })}</Tag>
-          ) : (
-            <Tag color="red">{formatMessage({ id: 'page.stream.unpublished' })}</Tag>
-          )}
-        </>
-      ),
-      renderFormItem: (_, { type }) => {
-        if (type === 'form') {
-          return null;
-        }
-
-        return (
-          <Select
-            style={{ width: '100%' }}
-            placeholder={`${formatMessage({ id: 'page.stream.unpublished' })}/${formatMessage({
-              id: 'page.stream.published',
-            })}`}
-            allowClear
-          >
-            <Option key={RouteStatus.Offline} value={RouteStatus.Offline}>
-              {formatMessage({ id: 'page.stream.unpublished' })}
-            </Option>
-            <Option key={RouteStatus.Publish} value={RouteStatus.Publish}>
-              {formatMessage({ id: 'page.stream.published' })}
-            </Option>
-          </Select>
-        );
-      },
-    },
-    */
     {
       title: formatMessage({ id: 'component.global.updateTime' }),
       dataIndex: 'update_time',

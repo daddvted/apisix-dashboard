@@ -41,18 +41,16 @@ export const fetchItem = (sid: number) =>
   request(`/stream_routes/${sid}`).then((data) => transformStreamData(data.data));
 
 export const fetchList = ({ current = 1, pageSize = 10, ...res }) => {
-  const { labels = [], API_VERSION = [], host = '', id = '', desc = '', status } = res;
+  console.log('********************');
+  console.log(res);
+  const { server_addr = '', server_port = '', id = '' } = res;
 
   return request<Res<ResListData<StreamModule.ResponseBody>>>('/stream_routes', {
     params: {
-      name: res.name,
-      uri: res.uri,
-      label: labels.concat(API_VERSION).join(','),
+      server_addr,
+      server_port,
       page: current,
       page_size: pageSize,
-      status,
-      host,
-      desc,
       id,
     },
   }).then(({ data }) => {

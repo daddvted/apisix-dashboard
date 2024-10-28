@@ -16,7 +16,11 @@
 #
 FROM alpine:latest as pre-build
 
+ARG ENABLE_PROXY=false
+
 COPY . /usr/local/apisix-dashboard
+
+RUN if [ "$ENABLE_PROXY" = "true" ] ; then sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories ; fi
 
 RUN set -x \
     && apk add --no-cache --virtual .builddeps git \
@@ -31,7 +35,7 @@ WORKDIR /usr/local/apisix-dashboard
 
 COPY --from=pre-build /usr/local/apisix-dashboard .
 
-RUN if [ "$ENABLE_PROXY" = "true" ] ; then go env -w GOPROXY=https://goproxy.io,direct ; fi \
+RUN if [ "$ENABLE_PROXY" = "true" ] ; then go env -w GOPROXY=https://goproxy.cn,direct ; fi \
     && go env -w GO111MODULE=on \
     && CGO_ENABLED=0 ./api/build.sh
 

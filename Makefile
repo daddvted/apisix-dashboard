@@ -21,6 +21,13 @@ YARN_EXEC ?= $(shell which yarn)
 GO_EXEC ?= $(shell which go)
 
 VERSION ?= latest
+
+VER ?= $(shell git describe --tags --dirty --always)
+ifeq ($(VER),)
+	VER = latest
+endif
+TAG = "stream-$(VER)"
+
 RELEASE_SRC = apache-apisix-dashboard-${VERSION}-src
 
 export GO111MODULE=on
@@ -130,3 +137,9 @@ release-src:
 	mv $(RELEASE_SRC).tgz release/$(RELEASE_SRC).tgz
 	mv $(RELEASE_SRC).tgz.asc release/$(RELEASE_SRC).tgz.asc
 	mv $(RELEASE_SRC).tgz.sha512 release/$(RELEASE_SRC).tgz.sha512
+
+.PHONY: image
+image:
+#   @echo ${TAG}
+	docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
+#	DOCKER_BUILDKIT=0 docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true

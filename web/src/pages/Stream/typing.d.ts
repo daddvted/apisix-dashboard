@@ -34,11 +34,6 @@ declare namespace StreamModule {
     id?: number;
     server_addr: string;
     server_port: number;
-    name: string; //remove
-    desc: string; //remove
-    uris: string[]; //remove
-    hosts: string[]; //remove
-    status: number;
   };
 
   type Step3Data = {
@@ -198,6 +193,8 @@ declare namespace StreamModule {
 
   type ResponseBody = {
     id: string;
+    server_addr: string;
+    server_port: number;
     // methods: HttpMethod[];
     // name: string;
     // remote_addrs: string[];
