@@ -93,6 +93,7 @@ oidc:
   scope: openid
 
 plugins:
+  - loki-logger
   - api-breaker
   - authz-casbin
   - authz-casdoor
