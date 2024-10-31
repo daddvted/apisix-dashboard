@@ -125,7 +125,7 @@ const Page: React.FC = () => {
           </Button>
         </div>
       </div>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 };
