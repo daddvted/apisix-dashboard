@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AutoComplete, Button, Col, Input, InputNumber, notification, Row, Select, Switch, Tag } from 'antd';
+import { Col, Input, InputNumber, notification, Row, Select } from 'antd';
 import Form from 'antd/es/form';
 import type { FC } from 'react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -59,7 +59,6 @@ const ServerAddr: FC = () => {
     <Form.Item 
       label={formatMessage({ id: 'page.stream.server_addr' })}
       tooltip={formatMessage({ id: 'page.stream.fields.server_addr.tooltip' })}
-      required
     >
       <Row>
         <Col span={10}>
