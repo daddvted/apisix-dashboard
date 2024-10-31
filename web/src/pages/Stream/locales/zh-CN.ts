@@ -200,7 +200,7 @@ export default {
 
   'page.stream.fields.vars.invalid': '请检查高级匹配条件配置',
   'page.stream.fields.vars.in.invalid': '使用 IN 操作符时，请输入数组格式的参数值。',
-  'page.stream.fields.server_addr.tooltip': '通常为APISIX的IP地址',
+  'page.stream.fields.server_addr.tooltip': '默认为APISIX的IP地址',
   'page.stream.fields.server_port.tooltip': '指定APISIX提前分配的4层端口',
 
   'page.stream.data_loader.import': '导入',

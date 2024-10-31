@@ -200,6 +200,8 @@ export default {
 
   'page.stream.fields.custom.redirectOption.tooltip': 'This is related to redirect plugin',
   'page.stream.fields.service_id.tooltip': 'Bind Service object to reuse their configuration.',
+  'page.stream.fields.server_addr.tooltip': 'Default to APISIX Server IP',
+  'page.stream.fields.server_port.tooltip': 'Specify pre-allocated layer 4 port',
 
   'page.stream.fields.vars.invalid': 'Please check the advanced match condition configuration',
   'page.stream.fields.vars.in.invalid':
