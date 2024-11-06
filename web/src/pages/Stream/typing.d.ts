@@ -34,6 +34,7 @@ declare namespace StreamModule {
     id?: number;
     server_addr: string;
     server_port: number;
+    desc: string;
   };
 
   type Step3Data = {
@@ -68,10 +69,10 @@ declare namespace StreamModule {
     id?: number;
     server_addr: string;
     server_port: number;
+    desc: string;
     status: number;
     name: string;
     labels: Record<string, string>;
-    desc: string;
     priority?: number;
     methods: HttpMethod[];
     uri?: string;
@@ -118,8 +119,8 @@ declare namespace StreamModule {
     id?: string;
     server_addr: string;
     server_port: number;
+    desc: string;
     // name: string;
-    // desc: string;
     // custom_version_label: string;
     // custom_normal_labels: string[];
     // priority: number;
@@ -195,11 +196,11 @@ declare namespace StreamModule {
     id: string;
     server_addr: string;
     server_port: number;
+    desc?: string;
     // methods: HttpMethod[];
     // name: string;
     // remote_addrs: string[];
     // script: any;
-    // desc?: string;
     // labels: Record<string, string>;
     upstream: {
       checks: UpstreamModule.HealthCheck;

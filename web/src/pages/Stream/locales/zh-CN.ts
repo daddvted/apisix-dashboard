@@ -71,7 +71,8 @@ export default {
   'page.stream.input.placeholder.paramType': '参数类型',
   'page.stream.input.placeholder.paramValue': '参数值',
   'page.stream.input.server_addr.placeholder': '请输入绑定的服务端地址',
-  'page.stream.input.placeholder.serverPort': '请输需要绑定的服务端端口（提前预留）',
+  'page.stream.input.placeholder.serverPort': '请输入需要绑定的服务端端口（提前预留）',
+  'page.stream.input.placeholder.description': '请输入数据流描述（内容不超过256个字符）',
   // form
   'page.stream.form.itemRulesRequiredMessage.parameterName': '仅支持字母和数字，且只能以字母开头',
   'page.stream.form.itemRulesPatternMessage.apiNameRule': '最大长度应仅为 100',

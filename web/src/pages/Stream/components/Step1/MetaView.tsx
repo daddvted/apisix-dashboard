@@ -99,6 +99,28 @@ const ServerPort: FC = () => {
   );
 };
 
+const Description: FC = () => {
+  const { formatMessage } = useIntl();
+  const { disabled } = useContext(MetaViewContext);
+
+  return (
+    <Form.Item label={formatMessage({ id: 'component.global.description' })}>
+      <Row>
+        <Col span={10}>
+          <Form.Item noStyle name="desc">
+            <Input.TextArea
+              placeholder={formatMessage({ id: 'page.stream.input.placeholder.description' })}
+              disabled={disabled}
+              showCount
+              maxLength={256}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form.Item>
+  );
+};
+
 const ServiceSelector: FC = () => {
   const { formatMessage } = useIntl();
   const { disabled, upstreamForm } = useContext(MetaViewContext);
@@ -175,6 +197,7 @@ const MetaView: React.FC<StreamModule.Step1PassProps> = (props) => {
         <Id />
         <ServerAddr />
         <ServerPort />
+        <Description />
 
         <ServiceSelector />
 

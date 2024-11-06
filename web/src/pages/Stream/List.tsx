@@ -215,6 +215,12 @@ const Page: React.FC = () => {
       width: 150,
     },
     {
+      title: formatMessage({ id: 'component.global.description' }),
+      dataIndex: 'desc',
+      ellipsis: true,
+      width: 200,
+    },
+    {
       title: formatMessage({ id: 'component.global.updateTime' }),
       dataIndex: 'update_time',
       hideInSearch: true,
