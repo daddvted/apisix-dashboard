@@ -141,5 +141,9 @@ release-src:
 	#DOCKER_BUILDKIT=0 docker build --no-cache -t apisix-dashboard:${TAG} . --build-arg ENABLE_PROXY=true
 
 quick: 
-	CGO_ENABLED=0 api/build.sh && cd ./web && export CYPRESS_INSTALL_BINARY=0  && yarn install --ignore-scripts && DASHBOARD_VERSION=${TAG} yarn build  && mkdir -p ../output/logs
+	CGO_ENABLED=0 api/build.sh && \
+	cd ./web && \
+	export CYPRESS_INSTALL_BINARY=0  && \
+	export NODE_OPTIONS=--openssl-legacy-provider && \
+	yarn install --ignore-scripts && DASHBOARD_VERSION=${TAG} yarn build  && mkdir -p ../output/logs
 	docker build --no-cache -t apisix-dashboard:${TAG} -f Dockerfile.quick .
