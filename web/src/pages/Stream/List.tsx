@@ -226,6 +226,8 @@ const Page: React.FC = () => {
       hideInSearch: true,
       width: 200,
       render: (text) => timestampToLocaleString(text as number),
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.update_time - b.update_time,
     },
     {
       title: formatMessage({ id: 'component.global.operation' }),
