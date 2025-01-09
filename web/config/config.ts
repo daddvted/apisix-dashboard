@@ -20,7 +20,7 @@ import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
 
-const { REACT_APP_ENV, SERVE_URL_DEV, SERVE_URL_TEST, DASHBOARD_VERSION } = process.env;
+const { REACT_APP_ENV, SERVE_URL_DEV, SERVE_URL_TEST, DASHBOARD_VERSION, DASHBOARD_TITLE } = process.env;
 
 export default defineConfig({
   hash: true,
@@ -41,7 +41,7 @@ export default defineConfig({
   },
   routes,
   layout: {
-    name: 'APISIX Portal',
+    name: `${ DASHBOARD_TITLE || "APISIX Portal"}`,
     locale: true,
     logo: '/favicon.png',
   },
@@ -52,7 +52,8 @@ export default defineConfig({
     'process.env': {
       SERVE_URL_DEV,
       SERVE_URL_TEST,
-      DASHBOARD_VERSION
+      DASHBOARD_VERSION,
+      DASHBOARD_TITLE
     }
   },
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn

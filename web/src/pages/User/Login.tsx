@@ -108,7 +108,7 @@ const Page: React.FC = () => {
           </div>
           <div className={styles.desc}>
             <h2>
-              APISIX Portal
+              {`${process.env.DASHBOARD_TITLE || "APISIX Portal"}`}
             </h2>
           </div>
         </div>

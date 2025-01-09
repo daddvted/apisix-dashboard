@@ -16,7 +16,7 @@
  */
 import { Settings as LayoutSettings } from '@ant-design/pro-layout';
 
-const { REACT_APP_ENV, SERVE_ENV, SERVE_URL_DEV, SERVE_URL_TEST, CYPRESS_SERVE_ENV } = process.env;
+const { REACT_APP_ENV, SERVE_ENV, SERVE_URL_DEV, SERVE_URL_TEST, CYPRESS_SERVE_ENV, DASHBOARD_TITLE } = process.env;
 
 const defaultSettings = {
   navTheme: 'dark',
@@ -30,7 +30,7 @@ const defaultSettings = {
   menu: {
     locale: true,
   },
-  title: 'APISIX Portal',
+  title: `${ DASHBOARD_TITLE || "APISIX Portal"}`,
   pwa: false,
   iconfontUrl: '',
   serveUrlMap: {
