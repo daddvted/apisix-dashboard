@@ -17,7 +17,8 @@
 const routes = [
   {
     path: '/',
-    component: './Dashboard',
+    // component: './Dashboard',
+    component: './Route/List',
   },
   {
     path: '/dashboard',
